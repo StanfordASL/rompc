@@ -1,0 +1,844 @@
+<Html>
+<head>
+<TITLE>Distillation: Column A </TITLE>
+</head>
+<body>
+
+<h1> MATLAB Distillation column model ("Column A")</h1>
+
+This documentation is written by Sigurd Skogestad
+<p>
+For general information on distillation: see 
+<a href="http://www.chembio.ntnu.no/users/skoge/distillation"> 
+here </a>. 
+
+<hr>
+<p>
+Contents:
+<ul>
+<li> <A HREF="cola.html#intro"> Introduction </A> <br>
+<li> <A HREF="cola.html#files"> MATLAB and SIMULINK files</A> <br>
+<li> <A HREF="cola.html#start"> Getting started</A> <br>
+<li> <A HREF="cola.html#model"> The model and assumptions</A> <br>
+<li> <A HREF="cola.html#data"> Column data ("Column A")</A> <br>
+<li> <A HREF="cola.html#matlab">  MATLAB model</A> <br>
+<li> <A HREF="cola.html#init"> Steady-state operating point</A> <br>
+<li> <A HREF="cola.html#dyn1"> Example: Dynamic response to increase in feed-rate</A> <br>
+<li> <A HREF="cola.html#dyn2"> Simulations with various configurations</A> <br>
+<li> <A HREF="cola.html#lin">  Linearized models</A> <br>
+<li> <A HREF="cola.html#g4">  Scaled linear model G4 </A> <br>
+<li> <A HREF="cola.html#temp"> Column temperatures </A> <br>
+<li> <A HREF="cola.html#simulink "> SIMULINK</A> <br>
+<li> <A HREF="cola.html#new"> Simulating another column</A> <br>
+<li> <A HREF="cola.html#ref"> References</A> <br>
+</ul>
+<hr>
+
+<p>
+<h2> <a name="intro"> Introduction </a></h2>
+
+You can here find nonlinear and linear dynamic models of a continuous distillation
+column for use with MATLAB and/or SIMULINK.  The models are for the 
+4x4 "open-loop" (uncontrolled) column, as well as for the LV, DV,
+and L/D-V/B-configurations. 
+<p>
+The column is "column A" studied in several
+papers by Skogestad and Morari, e.g. see 
+  S. Skogestad and M. Morari, ``Understanding the Dynamic Behavior of
+  Distillation Columns'', <i> Ind. & Eng. Chem. Research</i>, 27, 10, 1848-1862
+  (1988) and the book 
+<a href="http://www.chembio.ntnu.no/users/skoge/book.html">
+Multivariable feedback control</a> (Wiley, 1996) 
+by S. Skogestad and I. Postlethwaite. The model is the same as the one given in
+the book of Morari and Zafiriou (1989) - see their Appendix - except that
+we have here also included liquid flow dynamics, which is crucial if the
+model is used for feedback control studies. 
+In addition, the model has recently been used in a tutorial paper:
+S. Skogestad,  
+<A HREF="http://www.chembio.ntnu.no/users/skoge/publications/1997/dist_plenary.ps"> Dynamics and control of distillation columns -
+ A tutorial introduction.</A>, Trans IChemE (UK), Vol. 75, Part A, Sept.
+1997, 539-562 (Presented at <i>Distillation and Absorbtion
+ 97</i>, Maastricht, Netherlands, 8-10 Sept. 1997).
+<p>
+The following assumptions are used:
+Binary mixture; constant pressure; constant relative volatility;
+equlibrium on all stages; total condenser;
+constant molar flows; no vapor holdup; 
+linearized liquid dynamics, but effect of vapor flow ("K2"-effect) is included.
+These assumptions may seem restrictive, but they capture the main
+effects important for dynamics and control (except for the assumption
+about constant pressure). 
+<p>
+The column has 40 theoretical stages and separates a binary mixture
+with relative volatility of 1.5 into products of 99% purity.
+It is relatively easy to change the model parameters and to simulate
+another column.
+<p>
+The MATLAB column model is given in the file
+ <a href="colamod.m"><tt>colamod.m</tt></a>.
+Most of results given below can be generated from the file
+<a href="cola_test.m"> cola_test.m </a>, and a collection of useful
+MATLAB-commands for linear analysis 
+(poles, zeros, RGA, CLDG, singular values, etc.) 
+are found in <a href="cola_commands.m"> cola_commands.m </a>.
+In addition, the file 
+<A HREF="paper/cola_paper.m"> <tt>cola_paper.m</tt></A>
+(in the subdirectory <A HREF="paper"> <tt>paper</tt></A>)
+contains the files needed to generate the results in 
+the tutorial paper (Skogestad, 1997).
+<p>
+<p> This documentation was written by 
+<A HREF="http://www.chembio.ntnu.no/users/skoge"> Sigurd Skogestad </a>
+on 26 Nov 1996 and was last updated on 30 May 1997.
+
+<p>
+Thanks to Kjetil Havre, Magne Wiig Mathisen, Elisabeth Kjensjord
+and Atle Christiansen for their contributions.
+
+<h2> <a name="files"> MATLAB and SIMULINK files </a></h2>
+
+The most important files for the 4x4 column model (no control) are   
+<ul>
+<li><a href="colamod.m"><tt>colamod.m</tt></a> (function with basic column model),  
+<li><a href="cola4.m"><tt>cola4.m</tt></a> (MATLAB interface to colamod.m),
+<li><a href="colas.m"><tt>colas.m</tt></a> (SIMULINK  interface to colamod.m)
+<li><A href=colas_nonlin.mdl> <tt>colas_nonlin.mdl</tt> </a>
+(SIMULINK block diagram setup).
+</ul>
+In addition the following files for the LV-configuration are important
+<ul>
+<li><a href="cola_lv.m"><tt>cola_lv.m</tt></a> (same as <tt>cola4.m</tt>,
+but close level loops with D and B using P-controllers)
+<li><a href="cola_init.m"><tt>cola_init.m.</tt></a> 
+(generates steady-state data in file <tt>cola_init.mat</tt>- 
+Run this program first).  
+</ul>
+
+It is recommended that you at least copy the above 6 files to your user
+area.
+<p>
+
+However, to get other configurations, to
+lead you the through the examples below, and to provide
+you with easily accessible linear models (*.mat)  - the following 
+MATLAB (cola_) and SIMULINK (colas_) files are 
+<A HREF=" "> available</A>:
+<pre>
+G4.mat                cola_init.m           cola_test.m
+README.cola           cola_init.mat         colamod.m
+cola.dat              cola_lb.m             colas.m
+cola.html             cola_lb_F1.m          colas_PI.m
+cola4.m               cola_linearize.m      colas_lin.m
+cola4_F1.m            cola_lv.m             colas_lv_nonlin.m
+cola4_lin.m           cola_lv_F1.m          colas_nonlin.m
+cola_G4.m             cola_lv_lin.m         colas_test.m
+cola_G4_lin.mat       cola_lv_lin.mat       matlab_cola.tar.gz
+cola_G4u_lin.mat      cola_lvu_lin.mat      matlab_cola.zip
+cola_commands.m       cola_rr.m             numjac.m
+cola_db.m             cola_rr_F1.m          ode15s.m
+cola_db_lin.mat       cola_rr_lin.m         odeget.m
+cola_dv.m             cola_rr_lin.mat       odeset.m
+cola_dv_lin.mat       cola_rru_lin.mat      paper/
+cola_init.dat         cola_simulink_readme  vrga.m
+</pre>
+
+In addition, subdirectory <A HREF="paper"> <tt>paper</tt></A>
+contains the files (see in particular
+<A HREF="paper/cola_paper.m"> <tt>cola_paper.m</tt></A>)
+needed to generate the results in the paper:
+S. Skogestad, <A
+HREF="httP://www.chembio.ntnu.no/users/skoge/publications/1997/dist_plenary.ps"> Dynamics and control of distillation columns -
+ A tutorial introduction.</A> Presented at <i>Distillation and Absorbtion
+ 97</i>, Maastricht, Netherlands, 8-10 Sept. 1997.
+<p>
+
+All the files  can be transferred 
+<a href="http://www.chembio.ntnu.no/users/skoge/book/matlab_m/cola">
+one by one </a> using your browser (e.g netscape),
+or you can transfer all the files to your local machines
+by transferring the file
+<A HREF="matlab_cola.tar.gz"><tt>matlab_cola.tar.gz</tt></A> (unix)
+or 
+<A HREF="matlab_cola.zip"><tt>matlab_cola.zip</tt></A> (PC).
+Afterwards you "unpack" the files by writing:
+<PRE> gunzip -c matlab_cola.tar.gz | tar xvf - </PRE> 
+<p>
+It is recommended that you run MATLAB in one window and have the m-file in
+another window, and transfer text using the mouse. 
+
+<h2> <a name="start"> Getting started </a></h2>
+
+To test that things are working you may enter the following commands
+<pre>
+
+cola_init   % Generates initial steady-state profile
+cola_simf   % Simulates an increase in feed rate of 1% (using Matlab)
+
+</pre>
+
+If this works then you are in business. 
+But: These two files are the only ready-made scipt files,
+so from now on you mustgo into the files and modify by yourself
+(as descibed in more detail below).
+
+<h2> <a name="model"> The model and assumptions </a></h2>
+<b>Assumptions:</b> 
+Binary mixture, constant pressure, constant relative volatility,
+constant molar flows, no vapor holdup, linear liquid dynamics, equlibrium
+on all stages, total condenser.
+<p>
+Note that we do <b>not</b> assume constant holdup on the stages, that is, we
+include liquid flow dynamics.  This means
+that it takes some time (about (NT-2)*taul) from we change the liquid in
+the top of the column until the liquid flow into the reboiler changes. This
+is good for control as it means that the initial ("high-frequency")
+reponse is decoupled (if we have sufficiently fast control then we can 
+avoid some of the  strong interactions that exist at steady-state between
+the compositions at the top and bottom of the column).
+<p> <b>Notation:</b> 
+
+<br> L_i and V_i - liquid and vapor flow from stage i [kmol/min],
+<br> x_i and y_i - liquid and vapor composition of light component on stage i [mole fraction],
+<br> M_i - liquid holdup on stage i [kmol],
+<br> D and B - distillate (top) and bottoms product flowrate [kmol/min],
+<br> L=LT and V=VB - reflux flow and boilup flow [kmol/min],
+<br> F, z_F - Feed rate [kmol/min] and feed composition [mole fraction],
+<br> q_F - fraction of liquid in feed
+<br> i - stage no. (1=bottom. NF=feed stage, NT=total condenser)
+<br> alpha - relative volatility between light and heavy component 
+<br> taul - time constant [min] for liquid flow dynamics on each stage
+<br> lambda - constant for effect of vapor flow on liquid flow ("K2-effect")
+<p>
+<p> We will write the model such that the states are x_i (i=1,NT)
+and M_i (i=1,NT) - a total of 2*NT states. 
+
+<p> <b>Model equations.</b>
+The basic  equations are (for more details
+see <a href="colamod.m"><tt>colamod.m</tt></a>):
+<p>
+<b>1. Total material balance  om stage i:</b>
+<center>
+dM_i/dt = L_{i+1} - L_i + V_{i-1} - V_i
+</center>
+<b> 2. Material balance for light component on each stage i: </b>
+<center>
+d(M_i x_i)/dt  = L_{i+1} x_{i+1} + V_{i-1} y_{i-1} - L_i x_i - V_i y_i
+</center>
+which gives the following expression for the derivative of the
+liquid mole fraction:
+<center>
+dx_i/dt  = ( d(M_i x_i)/dt - x_i dM_i/dt ) / Mi
+</center>
+
+<p>
+<p> <b>3. Algebraic equations.</b> 
+The vapor composition y_i is related to the
+liquid composition x_i on the same stage
+through the algebraic vapor-liquid equlibrium:
+<center>
+y_i = alpha x_i / (1 + (alpha - 1)x_i)
+</center>
+where alpha is the relative  volatility.
+From the assumption of constant molar flows and
+no vapor dynamics we have the following expression for the vapor
+flows (except at the feed stage if the feed is partly vaporized,
+where V_NF = V_{NF-1} + (1-q_F) F): 
+<center> V_i=V_{i-1} 
+</center>
+The liquid flows depend on the liquid holdup on the stage above and the
+vapor flow as follows (this is a linearized relationship;
+we may alternatively use Francis' Weir formula etc.):
+<center>
+L_i = L0_i + (M_i - M0_i)/taul + (V-V0)_{i-1} * lambda;
+</center>
+where L0_i [kmol/min] and  M0_i [kmol] are the nominal values for
+the liquid flow and holdup on stage i. The vapor flow into the
+stage may also effect the holdup; lambda may be positive
+because more vapor may give more bubbles and thus may push liquid off the
+stage. If lambda is large (larger than 0.5) then the reboiler
+holdup "flattens out" for some time in response to an increase
+in boilup, and if lambda > 1 we get an inverse response;  see
+also Skogestad and Morari (1988). lambda may also be negative if
+the increased pressure drop caused by larger V results in a larger
+holdup in the downcomers - in general it is difficult to estimate
+lambda for tray columns. For packed columns lambda is usually close to zero.
+
+<p> 
+The above  
+equations apply at all stages except in the top (condenser),
+feed stage and bottom (reboiler). 
+<p><b>Feed stage</b>, i=NF (we assume
+the feed is mixed directly into the liquid at the feed stage):
+<center>
+dM_i/dt = L_{i+1} - L_i + V_{i-1} - V_i + F
+<p> d(M_i x_i)/dt  = L_{i+1} x_{i+1} + V_{i-1} y_{i-1} - L_i x_i - V_i y_i + F z_F
+</center>
+<p><b>Total condenser</b>, i=NT (M_NT = M_D, L_NT=L_T)
+<center>
+dM_i/dt = V_{i-1} - L_i - D
+<p> d(M_i x_i)/dt  = V_{i-1} y_{i-1} - L_i x_i - D x_i
+</center>
+<p><b>Reboiler</b>, i=1 (M_i = M_B, V_i = V_B = V)
+<center>
+dM_i/dt = L_{i+1} - V_i - B
+<p> d(M_i x_i)/dt = L_{i+1} x_{i+1} - V_i y_i - B x_i
+</center>
+
+<p>
+<hr>
+<h2> <a name="data"> Column data ("column A") </a> </h2>
+
+NT=41 stages including reboiler and
+total condenser, 
+<br> Feed at stage NF=21 counted from the bottom, <br>
+<b> Nominal conditions: </b> <br>
+Feed rate F = 1 [kmol/min], <br> 
+Feed composition z_F = 0.5 [mole fraction units] <br> 
+Feed liquid fraction q_F=1 (i.e., saturated liquid) <br>
+Reflux flow L_T = 2.706 [kmol/min] <br> 
+Boilup V = 3.206 [kmol/min].  <br>
+The 
+nominal liquid holdup on all 41 stages is M0_i=0.5 [kmol] 
+(including the reboiler and condenser; for more realistic studies you may
+use M0_1=10 [kmol] (reboiler) and M0_NT=32.1 [kmol] (condenser)). <br>
+The time constant for the liquid flow dynamics on each stage
+(except the reboiler and condenser) is taul = 0.063 min. <br>We assume that
+the vapor flow does not effect the liquid holdup, i.e. lambda=0. <br>
+
+<p> This results in a distillate product
+with D=0.5 [kmol/min] and composition y_D = x_NT =
+0.99 [mole fraction units], 
+and a bottoms product with B = 0.5 [kmol/min] and composition x_B=x_1 = 0.01
+[mole fraction units].<p>
+
+For more complete steady-state data
+see the file <a href="cola.dat"><tt>cola.dat</tt></a>. 
+<p>
+
+<p> <b> Remark.</b> It is easy to change the column data 
+(no. of stages, feed composition, flows, relative volatility, holdups)
+in the files 
+<a href=colamod.m> <tt>colamod.m</tt> </a>
+and <a href=cola_lv.m> <tt>cola_lv.m</tt> </a>
+so that  other columns can be simulated.
+
+
+<hr>
+<h2> <a name="matlab"> MATLAB model </a></h2> 
+The model of the column is given in the file 
+<a href=colamod.m> <tt>colamod.m</tt></a>.
+This model may be used in a number of different ways.
+
+The file contains a nonlinear model with 
+four manipulated inputs (LT, VB, D and B), three disturbances (F, zF and qF) 
+and 82 states (state1: liquid composition in reboiler  x_1=x_B, 
+then follow the stage compositions x_i up the column,
+state 41: composition stage 41 (condenser) x_41 = y_D, state 42: holdup
+reboiler M_1, then follow the stage holdups up the column M_i,
+state 82: condenser holdup M_D). 
+
+<p> We may use the file 
+<a href=cola4.m> <tt>cola4.m</tt></a>.
+to run this file using a MATLAB integration  routine
+(we found <a href=ode15s.m> <tt>ode15s</tt></a> to be efficient).
+It can also be run using SIMULINK; see below.
+
+<hr>
+<h2> <a name="init"> Steady-state operating point </a> 
+(see <a href="cola_init.m"> cola_init.m</a>)</h2>
+We would like to compute the steady-state operating point around which to
+base our analysis and controller design. However, the model
+contains two integrators because the condenser and reboiler levels are not 
+controlled.
+One particular way of stabilizing the column is the LV-configuration
+where we use D to control M_D, and B to control M_B; such a model
+is given in <a href=cola_lv.m> <tt>cola_lv.m</tt> </a> where we have used
+two P-controllers with gains equal to 10. 
+
+<p> To find the steady-state we simulate the column for 20000 minutes
+starting from an inital state where all 41 liquid compositions 
+are 0.5, and the 41 tray holdups also are 0.5 [kmol]:
+<pre> 
+[t,x]=ode15s('cola_lv',[0 20000],0.5*ones(1,82)'); 
+lengthx=size(x); Xinit = x(lengthx(1),:)'; </pre>
+The resulting steady-state  values of the states (Xinit) are given in 
+<a href="cola_init.dat"> <tt>cola_init.dat</tt></a> and are saved
+on MATLAB format in
+<a href="cola_init.mat"> <tt>cola_init.mat</tt></a>.
+As expected,
+the composition on the top stage is yD=x_41=0.9900
+and at the bottom stage is xB=x_1=0.0100. The steady-state holdups are all 0.5
+[kmol].
+
+<hr>
+<h2> <a name="dyn1"> 
+Example: Dynamic response to increase in feed-rate </a>
+(see <a href="cola_simf.m"> cola_simf.m</a>)</h2>
+
+We now have an initial steady-state from which to do nonlinear simulations.
+Normally, it is simplest to use SIMULINK (see below) for simulations, since it is
+then much easier to change data and controllers. Within a pure MATLAB
+environment we need to go into the m-file and make
+the changes, for example, to change the feed rate from 1 to 1.01
+we make the following change in the file 
+<a href="cola4.m"><tt>cola4.m</tt></a> (the change has been made in the file
+<a href="cola4_F1.m"><tt>cola4_F1.m</tt></a>) :
+<tt>
+<p> F=1.0+0.01;             % Feedrate increase from 1 to 1.01
+</tt>
+<p> After saving the file we simulate using the command
+<pre> 
+[t,x]=ode15s('cola4_F1',[0 500],Xinit); 
+t0 = t; M1=x(:,42); xB = x(:,1); yD = x(:,41); % Save the data for plotting </pre>
+We can plot the reboiler level using 
+<p> <tt> plot(t0,M1)</tt> 
+<p>
+and we see that (use the command: <tt>  axis([0 5, 0.45 0.55]) </tt>) 
+after an initial ``delay'' of about 20*0.063 = 1.26 min (the time the liquid
+takes to go through 20 ``lags'' (stages) each with time constant 0.063 min),
+the reboiler level increases in a ramplike fashion. The liquid composition
+in the reboiler, xB, increases in a similar
+fashion for the first 100 minutes or so, but then settles at a new 
+steady-state value of about 0.017
+(with a first-order time constant of about 200 minutes). The top composition, yD,
+has more of a second-order response, but otherwise the dynamics are similar.
+<p>
+The above simulation was with the "open-loop" model with no control loops
+closed. Simulations with various configurations (LV, LB, DV, L/D-V/B)
+where two level loops have been closed are given next.
+
+<hr>
+<a name="dyn2"> </a>
+<h2> Simulations with various configurations </h2>
+
+As given above, the response to a change in feed-rate with the open-loop
+model (with no level control) is obtained from
+<pre>
+[t,x]=ode15s('cola4_F1',[0 500],Xinit); 
+t0 = t; M1=x(:,42); xB = x(:,1); yD = x(:,41); % Save the data for plot </pre>
+
+Let us now compare the response when we use the <b> LV-configuration </b>
+with tight
+control of reboiler and condenser holdup. We must go into the file 
+<a href="cola_lv.m"><tt>cola_lv.m</tt></a> and change F to 
+1.01 (save the new file as <a href="cola_lv_F1.m"><tt>cola_lv_F1.m</tt></a>), 
+and then use
+<pre>
+[t,x]=ode15s('cola_lv_F1',[0 500],Xinit); 
+tlv=t; M1lv=x(:,42); xBlv = x(:,1); yDlv = x(:,41); %save data for plot </pre>
+Comparing the simulations with those for the open-loop model
+(e.g. use <tt> plot(t0,xB,t,xBlv)) </tt>)
+we see that the reboiler holdup Mb
+levels of very quickly at 0.501 because of the fast level control
+where D is increased from 0.5 to 0.501. However,
+there is essentially no difference in yD and only a small difference in xB (the
+increase in xB is slightly larger in the latter case with fast level control). 
+Note that with
+slow level control, the LV-model becomes identical to the open-loop model.
+This demonstrates that the LV-configuration is rather insensitive to the
+level tuning.
+Note that it is only the LV-configuration which behaves similarly to the
+open-loop model, and which is insensitive to the level tuning. 
+
+<p> For example, consider the <b> LB-configuration </b> with tight level control, 
+as given in the file 
+<a href="cola_lb.m"><tt>cola_lb.m</tt></a>. 
+We do a simulation of the same feedrate change 
+<pre>
+[t,x]=ode15s('cola_lb_F1',[0 500],Xinit); 
+tlb=t; M1lb=x(:,42); xBlb = x(:,1); yDlb = x(:,41);
+</pre>
+Here the vapor flow is adjusted to keep the reboiler holdup constant, so
+the feed increase results in an increased vapor flow up the column, so
+the increased feed actually ends up leaving the top of the column. The
+result is that  xB and yD <em> decrease </em> rather than increasing
+as they did for the LV-configuration. With a slowly tuned level controller,
+e.g. KcB=0.1, this results in an inverse response for the compositions
+xB and yD. 
+
+<p> Finally, consider the response with the <b> Double ratio (L/D-V/B)
+configuration</b> given in the file
+<a href="cola_rr.m"><tt>cola_rr.m</tt></a>. 
+In  this case we set the ratios L/D and V/B externally,
+and let the levels be controlled using D and B (controlling the levels
+like this may not be the best solution; but for tight level 
+control it makes no difference).
+<pre>
+[t,x]=ode15s('cola_rr_F1',[0 500],Xinit);
+trr=t; M1rr=x(:,42); xBrr = x(:,1); yDrr = x(:,41); </pre>
+In this case, the system is almost ``self-regulating'' with respect
+to the feed rate disturbance, because by the indirect action of the
+level controllers all flows in the column are increased proportionally
+to the feedrate change (which obviously is the right thing to do - at least
+at steady state). 
+
+<p> There is also a file for the <b>DV-configuration</b>
+in the file 
+<a href="cola_dv.m"><tt>cola_dv.m</tt></a>, 
+but for a feed rate disturbance it behaves 
+as the LV-configuration (but otherwise the dynamic response and control
+properties are completely different).
+
+<p> To plot all the above results use:
+
+<pre>
+plot(t0,M1,'-',tlv,M1lv,':',tlb,M1lb,'-.',trr,M1rr,'--');
+title('MB: reboiler (bottom) holdup [mol]');
+
+plot(t0,xB,'-',tlv,xBlv,':',tlb,xBlb,'-.',trr,xBrr,'--');
+title('xB: reboiler (bottom) composition');
+
+plot(t0,yD,'-',tlv,yDlv,':',tlb,yDlb,'-.',trr,yDrr,'--');
+title('yD: distillate (top) composition');
+</pre>
+
+<hr>
+<h2> <a name="lin"> Linearized models </a> </h2>
+
+The models can be linearized with the SIMULINK environment (see below).
+In the MATLAB enviroment we can use the included subroutine
+<a href="cola_linearize.m"> <tt>cola_linearize.m </tt></a>
+to perform the linearization.
+
+To linearize the open-loop model (with no level control) we use the
+subroutine <a href="cola4_lin.m"><tt>cola4_lin.m</tt></a> and the
+command
+<pre>
+Ls=2.706; Vs=3.206; Ds=0.5; Bs=0.5; Fs=1.0; zFs=0.5;
+[A,B,C,D]=cola_linearize('cola4_lin',Xinit',[Ls Vs Ds Bs Fs zFs]);
+G4u =  pck(A,B,C,D);
+</pre>
+The linear model has six inputs (the latter two are actually disturbances):
+<p> <tt> [LT  VB D  B F zF] </tt>
+<p> and four outputs
+<p> <tt> [yD  xB  MD  MB] </tt>
+<p>To check the model we may compute its 82 eigenvalues, 
+<tt> eig(A) </tt>, and we find that the 3 eigenvalues
+furthest to the right are 0, 0 and  -5.1562e-03. The first two are
+from the integrating (uncontrolled) levels in the reboiler and the
+condenser, and the latter one, which corresponds to a time constant of
+1/5.1562e-03 = 193.9 minutes is the dominant time constant for the
+composition response (it also behaves almost as an integrator over
+short time scales, so a ``stabilizing'' controller is also needed in
+practice for the compositions, e.g. by using a temperature controller).
+<p> <b>G4u.</b> The above linear model is called <tt>G4u</tt> - 4 denotes that
+there are 4 inputs (L,V,D,B) - in addition to the two disturbances - 
+and the u denotes that the model is unscaled. <p>
+
+<p> <b> Linear simulation.</b> 
+To simulate a feed-rate increase we can use one of the commands from
+the control toolboxes, for example, 
+<p>
+<tt> [Y,X,T]=step(A,B,C,D,5); plot(T,Y(:,1),T, Y(:,2))</tt>
+<p> which makes a unit step change, deltaF=1 [kmol/min], 
+in input 5 (the feed rate). This increase is
+actually 100 times larger than in the nonlinear simulation above, 
+but since we here use a linear model
+we need only reduce the output by a factor 100.  Taking this into
+account we see that an increase in F of 0.01 to 1.01 [kmol/min] (1%)
+yields a steady-state increase in y_D of  0.0039 and in x_B of 0.0059.
+
+<p><b>Comparison with nonlinear simulation.</b>
+Simulation with the nonlinear model gave a an
+increase in y_D of 0.0025 (to 0.9925) an in x_B of 0.0072 (to 0.0172). 
+Thus, the increase in y_D is smaller with the nonlinear model, but
+larger in x_B. The reason is that y_D approaches higher purity (which is
+difficult to achieve) whereas
+x_B approaches lower purity (which is easy to achieve). 
+<p> <i>Remark.</i> These nonlinear effects are to a large
+extent counteracted by using logarithmic compositions, X=ln(x_L/x_H) where
+L denotes light component and H heavy component. For the top
+and bottom composition of a binary mixture, we may use 
+<p> X_B = ln (x_B/(1-x_B));  Y_D = ln (y_D/(1-y_D)) 
+<p> Make sure you get the sign for the bottom loop
+right if these logarithmic outputs are used for controller design.
+<p>
+<b> Model reduction. </b>
+The above linear model has 82 states, but using model reduction
+the order can easily be reduced to 10 states or less  - without any noticable
+difference in the response. But beware - the open-loop ("uncontrolled")
+model is unstable as it has two integrators. The following MATLAB commands
+from the Mu-toolbox show how we may first decompose the model into a stable 
+and unstable part, and then model reduce the stable part to 6 states
+ using Hankel norm approximation
+(for more details see page 465-466 in Skogestad and Postlethwaite (1996)).
+<pre>
+% First scale the model:
+% Scaling of the model is generally recommended before you do model reduction
+% The scaling should make all inputs of about equal importance, and all outputs of about equal importance. 
+% For more details about the scaling; see below 
+Du = diag([1 1 1 1]);                  % max inputs (scalings)
+Dd = diag([ .2 .1]);                   % max disturbances (scalings)
+De = diag([0.01 0.01 1 1]);            % max output errors (scalings)
+Si = daug(Du,Dd); So = minv(De);       % introduce scaling matrices
+G4 = mmult (So, G4u, Si);              % scaled 82 state model
+% Now do model reduction
+[syss,sysu]=sdecomp(G4); [syssb,hsig]=sysbal(syss); 
+sys1=hankmr(syssb,hsig,6,'d');
+G4_8=madd(sys1,sysu);                   % scaled 8 state  model
+G4u_8=mmult( minv(So), G4_8, minv(Si)); % "un"scaled 8 state model
+</pre>
+The resulting overall model G4u_8 has 8 states. Note that the model was scaled
+before the model reduction such that all the inputs and outputs are
+of equal importance (see below for the scalings used).
+We can compare the reponses of the 82-state and 8-state linear models
+to a feed rate change:
+<pre>
+[A8,B8,C8,D8]=unpck(G4u_8); 
+[Y8,X8]=step(A8,B8,C8,D8,5,T); plot(T,Y(:,1),T,Y8(:,1));
+</pre>
+As can be seen, there is no significant difference.
+
+<p>
+<b> Analysis of linear model</b>. The main advantage with a linear
+model is that it is suitable for analysis (RGA, RHP-zeros,
+CLDG, etc.) and for controller systhesis. Again, see Skogestad
+and Postlethwaite (1996) for more details, or see some useful
+commands in <A HREF="cola_commands.m"> <tt> cola_commands.m </tt> </a>
+
+<p> <b> Linearized models for other configurations.</b>
+To obtain linear models for other configurations, we can start from
+the ``open-loop'' linear model G4u as shown in
+<a href="http://www.chembio.ntnu.no/users/skoge/book/matlab_m/Tab12_3.m"> 
+Table 12.3 </a> in the book by Skogestad and
+Postletwaite (1996). 
+Alternatively, we can linearize the nonlinear model directly,
+for example,  
+<p> For the <b> LV-configuration </b> (with 4 inputs and 2 outputs):
+<pre>Ls=2.706; Vs=3.206, Fs=1.0; zFs=0.5;
+[A,B,C,D]=cola_linearize(<a href="cola_lv_lin.m"><tt>'cola_lv_lin'</tt></a>,Xinit',[Ls Vs Fs zFs]);
+Glvu =  pck(A,B,C,D);
+</pre>
+
+For the <b>double ratio </b> (L/D-V/B) configuration (with 4 inputs and 2 outputs):
+<pre>
+R1s = 2.70629/0.5; R2s=3.20629/0.5; Fs=1.0; zFs=0.5;
+[A,B,C,D]=cola_linearize(<a href="cola_rr_lin.m"><tt>'cola_rr_lin'</tt></a>,Xinit',[R1s R2s Fs zFs]);
+Grru =  pck(A,B,C,D);
+</pre>
+
+<hr>
+<h2> <a name="g4"> Scaled linear model G4 </a> </h2>
+Scaling of the linear model is generally recommended before you do 
+controllability analysis, model reduction, etc.
+The scaling should make all inputs/disturbances  of about equal importance,
+and all outputs of about equal importance. Usually, this
+is done by dividing each variable by it maximum change, i.e.
+<pre>     u = U / Umax;   y = Y / Ymax;   d = D / Dmax </pre>
+where U is the deviation in original units, Umax is the maximum
+allowed or expected deviation, and u is the scaled variable.
+For more details see Skogestad and Postlethwaite (1996).
+
+NOTE: "Unscaled" linear models are here denoted with "u", e.g. G4u.
+<p>
+To get the scaled model G4 referred to in 
+<a href="http://www.chembio.ntnu.no/users/skoge/book/matlab_m/Tab12_3.m">
+<b>Table 12.3</b></a> on page 491 in the
+book of Skogestad and Postethwaite (1996), 
+we need to scale the above linear model G4u as follows: 
+<pre>
+% The following max. changes are used (for scaling the model):
+Du = diag([1 1 1 1]);       % max inputs (scalings)
+Dd = diag([ .2 .1]);        % max disturbances (scalings)
+De = diag([0.01 0.01 1 1]); % max output errors (scalings)
+% This implies the folling in terms of the scaled model G4:
+   % Units for inputs (L,V,D,B):  1 = 1 kmol/min = F (the feed rate)
+   % Units for disturbance 1 (F): 1 = 0.2 kmol/min (20% change)
+   % Units for disturbance 2 (z_f): 1 = 0.1 mole fraction units (20% change)
+   % Units for outputs 1 and 2 (y_d and x_b): 1 = 0.01 mole fraction units
+   % Units for outputs 3 and 4 (M_d and M_b): 1 = 1 kmol
+% The scaled model is then G4:
+Si = daug(Du,Dd); So = minv(De);       % introduce scaling matrices
+G4 = mmult(So, G4u, Si);
+</pre>
+
+All the command needed to generate this model ``from scratch'' are
+given in <a href="cola_G4.m"><tt>cola_G4.m</tt></a>.
+
+<hr>
+<h2> <a name="temp"> Column temperatures </a> </h2>
+
+All the tray compositions are x_i available in the state vector, and
+as a simple expression for the temperature we may assume a linear
+boiling point curve
+<center> T_i = x_Li T_bL + x_Hi T_bH </center>
+where T_i is the temperature on stage i, and x_i is the liquid mole
+fraction.  T_bL and T_bH are the boiling temperatures of the two pure
+components. 
+(this may seem very crude but is actually a good approximation
+for many mixtures).
+For "column A" we use the data
+<center> T_bL = 341.9 K,   T_bH = 355.4 K </center>
+This gives a boiling point difference of 13.5 K (in
+terms of linearized variables we have dT_i = - 13.5 dx_i), which is
+consistent with a relative volatility of 1.5.
+<p>
+See also <a href="refmejdell"> work by Mejdell et
+al.
+</a> for use of column temperatures to estimate product compositions.
+
+<hr>
+<h2> <a name="simulink"> SIMULINK </a> </h2>
+
+All the things we did above can be done with SIMULINK, although the
+simulation runs quite a bit slower. On the other hand, it is much
+easier to inteface controllers etc. with SIMULINK. <p>
+
+The SIMULINK interface to <tt>colamod.m</tt> 
+is <a href=colas.m> <tt>colas.m</tt> </a>; the latter file simply 
+calls the first file to get derivatives of the states for a given 
+state X and input U. The nominal initial steady-state conditions, Xinit
+are loaded from the file <a href=cola_init.mat> <tt>cola_init.mat</tt> </a> 
+(you may easily
+generate Xinit by running the file 
+<a href="cola_init.m"> cola_init.m </a>).
+
+
+<p>Some SIMULINK files:
+<p>
+   <LI> <A href=colas_nonlin.m> <tt>colas_nonlin.m</tt> </a> 
+        - A nonlinear SIMULINK model/setup with no control loops closed
+        (so the model has 4 inputs; L, V, D and B, and 3 disturbances:
+        zF, F, and qF, and 4 outputs).  <br>
+	Type <tt> colas_nonlin </tt> 
+        in the MATLAB window and the non-linear SIMULINK model of the 
+        distillation column appears. You may run a simulation by pressing
+        <tt> Simulation </tt> and then <tt> Start </tt> in the SIMULINK
+        window. The default is an increase in F from 1 to 1.01 to be
+        simulated for 50 minutes, but this is easily changed. 
+         (NOTE: second should be minutes in the window
+        which appears during simulation). The outputs are stored in 
+        <tt> y1, y2, y3, y4 </tt> and the entire state vector for
+        the 41 compositions is stored in <tt> Comp</tt>. 
+        To plot the reboiler composition,
+        for example, you may write <tt> plot(t,y2) </tt> in the MATLAB
+        window. To plot the compositon on stage 7 (counted from the bottom),
+        write <tt> plot(t,Comp(:,7)) </tt>, etc.
+   <LI> <A href=colas_lv_nonlin.m> <tt>colas_lv_nonlin.m</tt> </A>  	
+        - A non-linear SIMULINK model/setup  with the
+	LV-configuration (but with NO composition loops closed). 
+        <br> Type <tt> cola_lv_nonlin
+        </tt>
+        in the MATLAB window and the non-linear SIMULINK model of the 
+        distillation column with LV-configuration appears. As level
+controllers we have used P-controllers with a gain of 10 
+(so the level control is fast; a value of 1 would probably be more realistic)
+   <LI> <A href=colas_PI.m> <tt>colas_PI.m</tt> </A>  	
+        - Same as above (nonlinear LV-configuration), but with also two 
+decentralized PI composition loops closed. A measurement delay of 1 min is used for each of
+the two compositions.
+   <LI> <A href=colas_lin.m> <tt>colas_lin.m</tt> </A>
+        - A linearized SIMULINK model with no control loops closed.
+        Use the following MATLAB commands to get a SIMULINK window with
+        the linearized model: 
+        <pre> 
+        load cola_init
+        [A,B,C,D] = linmod('colas',Xinit,Uinit); 
+        colas_lin
+        </pre>
+ The linear SIMULINK simulation is faster than with the nonlinear 
+        model, but still
+        slow compared to using MATLAB (see above).
+   <LI> <A href=colas_test.m> <tt>colas_test.m</tt> </A>
+        - contains sample commands and further description on use of 
+        the SIMULINK models.
+</UL>
+<b> Controllers. </b>
+With SIMULINK it is easy to do modifications to the control structure.
+If, for example, you want to study the non-linear distillation column in the 
+LV-configuration with two PI-controllers controlling the compositions 
+then you may use 
+<A href=colas_PI.m> <tt>colas_PI.m</tt> </A>.
+Alternatively, you may make a state space multivariable controller
+and connect it up.
+See the SIMULINK manual for further details.
+
+<hr>
+<h2> <a name="new"> Simulating another column </a> </h2>
+
+To simulate another column (with different relative voloatility, number
+of stages etc.) you first need to 
+find an initial steady-state. This may be
+done with the Fortran program  
+<a href="fenske.f"> fenske.f </a>  (you may then specify compositions)
+or you may use dynamic simulation in Matlab and run it to
+a steady-state. 
+
+<p>
+
+In any case you it is recommended to use
+dynamic simulation and run it to steady-state 
+(e.g. using  a modefified <a href="cola_init.m"> cola_init.m </a>)
+to obtain steady-state data  which can be used as initial
+data for later simulations (saved 
+in <a href="cola_init.mat"> cola_init.mat </a>
+for use with Matlab simulations or 
+with Simulink simulations).
+<p>
+
+You then need to change the steady-state data in 
+<a href="colamod.m"> colamod.m </a> 
+(most of the changes are needed because of the linearized flow dynamics).
+For simulations in Matlab you also need to change
+the "Inputs and disturbances" for the individual configurations, such as 
+<a href="cola4.m"> cola4.m</a> or 
+<a href="cola_lv.m"> cola_lv.m </a>.  
+For simulations with Simulink you need to change NT (no. of stages) in
+<a href="colas.m"> colas.m </a>.
+
+
+
+
+<hr>
+
+
+
+<p>Good Luck.
+
+<h2> <a name="ref"> References </a> </h2>
+
+<ol>
+<li>
+<a href="http://www.chembio.ntnu.no/users/skoge/book/matlab_m/matfiles.html#c12">
+Further information </a> about use of the model is given in the book
+<a href="http://www.chembio.ntnu.no/users/skoge/book.html">
+Multivariable feedback control</a> (Wiley, 1996) by S. Skogestad and 
+I. Postlethwaite.
+
+<li>
+S. Skogestad and M. Morari, ``Understanding the Dynamic Behavior of
+Distillation Columns'', <i>Ind. & Eng. Chem. Research</i>, <b>27</b>, 10, 
+1848-1862 (1988). 
+
+<li> M. Morari and E. Zafiriou, Robust process control, Prentice-Hall (1989) - 
+see their Appendix (but their model has no liquid flow
+dynamics.)
+
+<li> S. Skogestad, ``Dynamics and Control of Distillation Columns - A
+Critical Survey'', (Invited plenary
+      lecture). Preprints IFAC-symposium DYCORD+'92, 1-25, Maryland, Apr.
+27-29, 1992. Reprinted in the  Nowegian research bulletin<i>  Modeling,
+	  Identification and Control</i>, <b>18</b>, 177-217 (1997). 
+
+<li> T. Mejdell and S. Skogestad, ``Estimation of Distillation
+Compositions
+from Multiple Temperature Measurements using Partial-Least-Squares
+Regression'', <i>Ind. Eng. Chem. Res.</i>, <b>30</b>, 12 , 2543-2555 (1991).
+ 
+<li> S. Skogestad, 
+<A HREF="http://www.chembio.ntnu.no/users/skoge/publications/1997/dist_plenary.ps"> Dynamics and control of distillation columns -
+ A tutorial introduction.</A> Presented at <i>Distillation and Absorbtion
+ 97</i>, Maastricht, Netherlands, 8-10 Sept. 1997. Published in
+ <i>Trans. IChemE</i>, Vol. 75, Part A, Sept. 1997.
+
+<li> I.J. Halvorsen and S. Skogestad,
+<a
+href="http://www.chembio.ntnu.no/users/skoge/publications/1999/DistillationTheory.pdf">
+``Distillation Theory'', </a>
+<i> Encyclopedia of Separation Science. </i>
+Ian D. Wilson (Editor-in-chief), Academic Press, 2000.
+
+</ol> 
+</body>
+</html>
+
