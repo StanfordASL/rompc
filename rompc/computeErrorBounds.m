@@ -114,12 +114,16 @@ end
 if isfield(opt, 'Xbar_t')
     Xbar_t = opt.Xbar_t;
 else
-    Xbar_t = 1;
+    if continuous
+        Xbar_t = 0;
+    else
+        Xbar_t = 1;
+    end
 end
 
 if continuous
     T = max(floor(Xbar_tau/dt), size(ROM.A,1));
-    Xbar_idx = floor(Xbar_t/dt);
+    Xbar_idx = floor(Xbar_t/dt) + 1;
 else
     T = max(Xbar_tau, size(ROM.A,1));
     Xbar_idx = Xbar_t;
