@@ -16,19 +16,17 @@ J. Lorenzetti, B. Landry, S. Singh, and M. Pavone, [“Reduced Order Model Predi
 [YALMIP](https://yalmip.github.io/)<br/>
 LP/QP solver (e.g [CPLEX](https://www.ibm.com/analytics/cplex-optimizer) or [MOSEK](https://www.mosek.com/))<br/>
 
-
-
 ## Example Models ##
 The following examples are included in this repository:
-| Model                                     | Description                                                                                                                                                                                          |
-|-------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| smallSynthetic                                      | A synthetic discrete-time example with dimension = 6.       |
-| largeSynthetic                    | A synthetic discrete-time example with dimension = 20.       |
-| distillationColumn               | A time-discretized model of a binary distillation column [1],[2] with dimension = 86. |
-| tubularReactor | A continuous-time model of a controlled chemical reaction process [3] with dimension = 600. |
-| heatflow | A time-discretized model for a distributed control heat flow problem with dimension = 3,481. This model is a modified version of the HF2D9 model described in [4].       |
-| supersonicDiffuser | A time-discretized CFD model for the active control of a supersonic diffuser [5],[6] with dimension = 11,730. |
-| aircraft | A continuous-time aircraft dynamics model [7],[8] (with an embedded CFD aerodynamics model) with dimension = 0.        |
+| Model                | Description                                                                                                          | Dimension |
+|----------------------|----------------------------------------------------------------------------------------------------------------------|:---------:|
+| smallSynthetic       | A synthetic discrete-time example                                                                                    |    6      |
+| largeSynthetic       | A synthetic discrete-time example                                                                                    |    20     |
+| distillationColumn   | A time-discretized model of a binary distillation column [1],[2]                                                     |    86     |
+| tubularReactor       | A continuous-time model of a controlled chemical reaction process [3]                                                |    600    |
+| heatflow             | A time-discretized model for a distributed control heat flow problem, modified from the HF2D9 model described in [4] |   3,481   |
+| supersonicDiffuser   | A time-discretized CFD model for the active control of a supersonic diffuser [5],[6]                                 |  11,730   |
+| aircraft             | A continuous-time aircraft dynamics model (with an embedded CFD aerodynamics model) [7],[8]                          |           |
 
 ## References ##
 [1] S. Skogestad and M. Morari, "Understanding the dynamic behavior of distillation columns", Ind. & Eng. Chem. Research, 27, 10, 1848-1862 (1988) 
