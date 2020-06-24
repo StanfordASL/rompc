@@ -60,7 +60,7 @@ pars.p = size(P.C2, 1);
 [options.structure] = procStructure(pars, options);
 
 % Check that the initial controller has correct structure
-procInitialController(Kinit, pars, options);
+procInitialController(options.init, pars, options);
 
 % Process other options
 [pars, options] = procOptions(pars, options);

@@ -40,6 +40,7 @@ if isfield(opt, 'errormats_datapath')
 
     % Load data matrices from file
     if exist(opt.errormats_datapath, 'file')
+        tau_spec = tau;
         fprintf('******************************\n');
         fprintf('Loading error data matrices from %s.\nDelete this file for recomputation.\n', opt.errormats_datapath);
         fprintf('******************************\n\n');
