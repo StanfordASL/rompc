@@ -1,5 +1,5 @@
 function [O_inf, kstar, lptime] = maximalPI(A, E, Phi, opt)
-%[O_inf, kstar, lptime] = maximalPI(A, E, Phi)
+%[O_inf, kstar, lptime] = maximalPI(A, E, Phi, opt)
 %
 %Compute maximal admissible PI set given the constraint set Phi. See method from Kolmanovsky
 %and Gilbert (1998).

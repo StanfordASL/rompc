@@ -13,7 +13,8 @@ function [Delta_z, Delta_u] = computeInputEffectBoundContinuous(ROM, ERROR, Z, U
 %   Wnoise: process noise bound (Polyhedron), or 0 if no noise
 %   Vnoise: measurement noise bound (Polyhedron), or 0 if no noise
 %   tau: backward time horizon
-%   opt: optional arguments, including:
+%   opt: options, including:
+%       - solver: specifies the solver to use
 %       - errormats_datapath: path to file where precomputed matrices are
 %                             stored to or loaded from
 %       - dt: time discretization
@@ -33,6 +34,11 @@ if isfield(opt, 'int_method')
     int_method = opt.int_method;
 else
     int_method = 'trapezoid';
+end
+
+% Solver
+if ~isfield(opt, 'solver')
+    opt.solver = 'cplex';
 end
 
 % Check whether the matrices that are computed should be saved or loaded
@@ -211,9 +217,11 @@ for i = 1:N+N+1
 end
 
 % Solve LPs to get p^Tx <= b
-ops = sdpsettings('verbose', 0, 'solver', 'cplex', 'savesolveroutput', 1);
-ops.cplex.lpmethod = 4;
-ops.cplex.barrier.convergetol = 1e-04;
+ops = sdpsettings('verbose', 0, 'solver', opt.solver, 'savesolveroutput', 1);
+if strcmp(opt.solver, 'cplex')
+    ops.cplex.lpmethod = 4;
+    ops.cplex.barrier.convergetol = 1e-04;
+end
 n_z = size(Z.A,1);
 Delta_z = zeros(n_z, 1);
 fprintf('Computing bounds for Hf*e error.\n');

@@ -12,7 +12,8 @@ function [EBOUND] = computeErrorBounds(FOM, ROM, CTRL, Z, U, Wnoise, Vnoise, tau
 %   Wnoise: process noise bound (Polyhedron), or 0 if no noise
 %   Vnoise: measurement noise bound (Polyhedron), or 0 if no noise
 %   tau: backward time horizon
-%   opt: optional arguments, including:
+%   opt: options, including:
+%       - solver: string, solver to use e.g. 'cplex' or 'mosek'
 %       - G_method:   'Lyap', 'LMI', 'GP', 'BatchGP', or 'None'
 %       - G_0:        PD matrix to warm start G_method for 'BatchGP' (diagonal), or 
 %                     to use if 'None', size nf + n x nf + n
@@ -30,14 +31,14 @@ function [EBOUND] = computeErrorBounds(FOM, ROM, CTRL, Z, U, Wnoise, Vnoise, tau
 %       - D2_only:    true to only compute D2 error terms
 %       - no_FOM:     true if don't have the FOM but only data matrices
 %                     saved in errormats_datapath
-%	- dt:             For continuous time systems, specify the time discretization
-%		          to use in quadrature scheme
-%	- int_method:     For continuous time systems, specify the quadrature scheme
-%		          options include 'trapezoid' or 'leftRiemann'
-%	- mat_exp_method: For continuous time systems, specify method for approximating
-%			  the matrix exponential terms, either 'expm' for direct computation
-%			  'expmv' for approximation of mat exp action, or 'implicitEuler'
-%			  to use an implicit Euler integration scheme
+%       - dt:             For continuous time systems, specify the time discretization
+%                         to use in quadrature scheme
+%       - int_method:     For continuous time systems, specify the quadrature scheme
+%                         options include 'trapezoid' or 'leftRiemann'
+%       - mat_exp_method: For continuous time systems, specify method for approximating
+%                         the matrix exponential terms, either 'expm' for direct computation
+%			              'expmv' for approximation of mat exp action, or 'implicitEuler'
+%			              to use an implicit Euler integration scheme
 %
 % Outputs:
 %   EBOUND: struct containing relevant parameters for error bound
@@ -180,7 +181,7 @@ end
 % Compute Cr and Cw
 if strcmp(Cr_method, 'upperbound')
     fprintf('Computing upper bound on Cr using convex relaxation.\n');
-    [Cr] = computeC_UpperBound(ERROR.Be, G, Xbar, U);
+    [Cr] = computeC_UpperBound(ERROR.Be, G, Xbar, U, opt);
 elseif strcmp(Cr_method, 'hyperrect')
     fprintf('Computing Cr assuming Xbar and U are hyperrectangles.\n');
     [Cr] = computeC_HyperRect(ERROR.Be, G, Xbar, U);
@@ -192,7 +193,7 @@ end
 if isa(Wnoise, 'Polyhedron') && isa(Vnoise, 'Polyhedron')
     if strcmp(Cw_method, 'upperbound')
         fprintf('Computing upper bound on Cw using convex relaxation.\n');
-        [Cw] = computeC_UpperBound(ERROR.Ge, G, Wnoise, Vnoise);
+        [Cw] = computeC_UpperBound(ERROR.Ge, G, Wnoise, Vnoise, opt);
     elseif strcmp(Cw_method, 'hyperrect')
         fprintf('Computing Cw assuming Xbar and U are hyperrectangles.\n');
         [Cw] = computeC_HyperRect(ERROR.Ge, G, Wnoise, Vnoise);

@@ -18,12 +18,16 @@ function [Xbar] = computeXbar(A, B, H, Z, U, k, idx, opt)
 %   idx: value in range [1, k] for which state to bound in [t-k,k],
 %        Lorenzetti (2020) paper uses t = 1 as default for assumptions.
 %   opt: optional arguments, including:
+%       - solver: specifies the solver to use
 %       - xbar_datapath: path to file where precomputed matrices are
 %                             stored to or loaded from
 %
 % Outputs:
 %   Xbar: polyhedron outer bound for xbar
 
+if ~isfield(opt, 'solver')
+    opt.solver = 'cplex';
+end
 
 % Check whether the matrices that are computed should be saved or loaded
 if isfield(opt, 'xbar_datapath')
@@ -97,7 +101,7 @@ end
 P = [eye(n); -eye(n)];
 
 % Solve LPs to get p^Tx <= b
-ops = sdpsettings('verbose', 0, 'solver', 'cplex', 'savesolveroutput', 1);
+ops = sdpsettings('verbose', 0, 'solver', opt.solver, 'savesolveroutput', 1);
 n2 = size(P,1);
 b = zeros(n2, 1);
 for i = 1:n2

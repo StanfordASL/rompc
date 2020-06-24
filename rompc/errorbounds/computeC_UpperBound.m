@@ -1,5 +1,5 @@
-function [Cbound] = computeC_UpperBound(B, G, X, Y)
-%[Cbound] = computeC_UpperBound(B, G, X, Y)
+function [Cbound] = computeC_UpperBound(B, G, X, Y, opt)
+%[Cbound] = computeC_UpperBound(B, G, X, Y, opt)
 %
 %Computes a conservative upper bound on the norm ||B*[x, y]^T||_G
 %subject to the bounds on the variables x and y. This value is
@@ -9,9 +9,14 @@ function [Cbound] = computeC_UpperBound(B, G, X, Y)
 %   G: positive definite weighting matrix
 %   X: bounding set for x
 %   Y: bounding set for y
+%   opt: opt.solver specifies the solver to use
 %
 % Outputs:
 %   Cbound: norm bound
+
+if ~isfield(opt, 'solver')
+    opt.solver = 'cplex';
+end
 
 M = B'*G*B;
 n = size(X.A, 2);
@@ -24,7 +29,7 @@ x = sdpvar(size(A,2),1);
 y = sdpvar(size(A,1),1); 
 constraints = [A*x + y == b, y >= 0];
 J = -sum(y);
-ops = sdpsettings('verbose', 0, 'solver', 'cplex', 'savesolveroutput', 1);
+ops = sdpsettings('verbose', 0, 'solver', opt.solver, 'savesolveroutput', 1);
 diagnostics = optimize(constraints, J, ops);
 gamma = -value(J);
 if diagnostics.problem ~= 0

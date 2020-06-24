@@ -1,5 +1,5 @@
-function [G, solver] = computeG_GP(X, Y)
-%[G, solver] = computeG_GP(X, Y)
+function [G, solver] = computeG_GP(X, Y, opt)
+%[G, solver] = computeG_GP(X, Y, opt)
 %
 %This function seeks to minimize the quantitiy \prod_i ||G^1/2*X_i||_2 * ||Y_i*G^-1/2||_2
 %by noting that ||A||_2 <= ||A||_F and therefore minimizing the square of
@@ -9,9 +9,14 @@ function [G, solver] = computeG_GP(X, Y)
 % Inputs:
 %   X: cell array of X_i matrices, which are n x m_xi in size
 %   Y: cell array of X_i matrices, which are n_yi x n in size
+%   opt: opt.solver specifies solver to use
 %
 % Returns:
 %   G: n x n diagonal, positive definite matrix
+
+if ~isfield(opt, 'solver')
+    opt.solver = 'mosek';
+end
 
 n = size(X{1}, 1); % dimension of G
 num_sets = length(X);
@@ -37,7 +42,7 @@ end
 
 % Solve geometric program.
 fprintf('Optimizing G via geometric programming.\n');
-ops = sdpsettings('verbose', 0, 'solver', 'mosek');
+ops = sdpsettings('verbose', 0, 'solver', opt.solver);
 solver = optimize([g >= 0], J, ops);
 if solver.problem ~= 0
     fprintf('Geometric program failed to find solution in optimizeG.\n');

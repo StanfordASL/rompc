@@ -10,6 +10,7 @@ function [M, gamma, G, sqrtG] = computeScalarDecayBoundDiscrete(ERROR, G_method,
 %   G_0: an initial guess if method is 'BatchGP' or to just use if method
 %        is 'None'
 %   opt: optional arguments including
+%       - solver: specifies solver to use for 'LMI', 'GP', and 'BatchGP'
 %       - normbound_datapath: path to save or load results
 %
 % Returns:
@@ -49,7 +50,7 @@ if strcmp(G_method, 'Lyap')
 
 elseif strcmp(G_method, 'LMI')
     fprintf('Computing G, M, gamma via LMI constrained optimization.\n');
-    [G, ~] = computeG_LMI_Discrete(ERROR.Ae);
+    [G, ~] = computeG_LMI_Discrete(ERROR.Ae, opt);
     sqrtG = sqrtm(G);
     gamma = norm(sqrtG*ERROR.Ae*inv(sqrtG));
     M = 1;
@@ -59,7 +60,7 @@ elseif strcmp(G_method, 'GP')
     [xi, lam] = eig(full(ERROR.Ae));
     invxi = inv(xi);
     gamma = max(abs(diag(lam)));
-    [G, ~] = computeG_GP({xi, blkdiag(ERROR.Be, ERROR.Ge)}, {invxi, [ERROR.Ez; ERROR.Eu]});
+    [G, ~] = computeG_GP({xi, blkdiag(ERROR.Be, ERROR.Ge)}, {invxi, [ERROR.Ez; ERROR.Eu]}, opt);
     sqrtG = sqrtm(G);
     M = cond(sqrtG*xi);
     
@@ -84,7 +85,7 @@ elseif strcmp(G_method, 'BatchGP')
     invxi = inv(xi);
     gamma = max(abs(diag(lam)));
     [G] = computeG_BatchGP({xi, blkdiag(ERROR.Be, ERROR.Ge)}, {invxi, [ERROR.Ez; ERROR.Eu]}, ...
-                            min(ne, 20), 'random', 10000, 0.001, G_0);
+                            min(ne, 20), 'random', 10000, 0.001, G_0, opt);
     sqrtG = sqrtm(G);
     
     % This code since I was getting some wierd errors from using cond()

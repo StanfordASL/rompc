@@ -1,5 +1,5 @@
-function [G] = computeG_BatchGP(X, Y, N, method, maxiter, epsilon, G0)
-%[G] = computeG_BatchGP(X, Y, N, method, maxiter, epsilon, G0)
+function [G] = computeG_BatchGP(X, Y, N, method, maxiter, epsilon, G0, opt)
+%[G] = computeG_BatchGP(X, Y, N, method, maxiter, epsilon, G0, opt)
 %
 %This function seeks to minimize the quantitiy \prod_i ||G^1/2*X_i||_2 * ||Y_i*G^-1/2||_2
 %by noting that ||A||_2 <= ||A||_F and therefore minimizing the square of
@@ -14,9 +14,14 @@ function [G] = computeG_BatchGP(X, Y, N, method, maxiter, epsilon, G0)
 %   maxiter: max number of iterations
 %   epsilon: percent improvement termination condition (%)
 %   G0: vector of strictly positive values for initial guess
+%   opt: opt.solver specifies the solver to use
 %
 % Returns:
 %   G: n x n diagonal, positive definite matrix
+
+if ~isfield(opt, 'solver')
+    opt.solver = 'mosek';
+end
 
 n = size(X{1}, 1); % dimension of G
 num_sets = length(X);
@@ -39,7 +44,7 @@ end
 
 G_k = G0;
 g = sdpvar(N,1);
-ops = sdpsettings('verbose', 0, 'solver', 'mosek');
+ops = sdpsettings('verbose', 0, 'solver', opt.solver);
 iter = 0;
 J_old = inf;
 while true
