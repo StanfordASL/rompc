@@ -1,4 +1,0 @@
-Cplex
-Mosek
-MPT3
-YALMIP
