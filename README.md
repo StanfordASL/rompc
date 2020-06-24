@@ -1,4 +1,6 @@
-<p align="center"><img width="100%" src="img/Trajectron++.png"/></p>
+
+
+<p align="center"><img width="50%" src="img/heatflow.png"/></p>
 
 # ROMPC: Reduced Order Model Predictive Control #
 This repository provides an implementation of the reduced order model predictive control scheme described in (journal paper)
@@ -9,10 +11,10 @@ J. Lorenzetti and M. Pavone, [“Error Bounds for Reduced Order Model Predictive
 J. Lorenzetti, B. Landry, S. Singh, and M. Pavone, [“Reduced Order Model Predictive Control For Setpoint Tracking,”](https://arxiv.org/pdf/1811.06590.pdf) in _European Control Conference_, Naples, Italy, 2019.
 
 ## Requirements ##
-[MATLAB]([https://www.mathworks.com/products/matlab.html](https://www.mathworks.com/products/matlab.html))
-[MPT3](https://www.mpt3.org/)
-[YALMIP](https://yalmip.github.io/)
-LP/QP solver (e.g [CPLEX](https://www.ibm.com/analytics/cplex-optimizer) or [MOSEK](https://www.mosek.com/))
+[MATLAB](https://www.mathworks.com/products/matlab.html)<br/>
+[MPT3](https://www.mpt3.org/)<br/>
+[YALMIP](https://yalmip.github.io/)<br/>
+LP/QP solver (e.g [CPLEX](https://www.ibm.com/analytics/cplex-optimizer) or [MOSEK](https://www.mosek.com/))<br/>
 
 
 
@@ -20,13 +22,13 @@ LP/QP solver (e.g [CPLEX](https://www.ibm.com/analytics/cplex-optimizer) or [MOS
 The following examples are included in this repository:
 | Model                                     | Description                                                                                                                                                                                          |
 |-------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| smallSynthetic                                      | A synthetic discrete-time example with dimension $n^f = 6$.       |
-| largeSynthetic                    | A synthetic discrete-time example with dimension $n^f = 20$.       |
-| distillationColumn               | A time-discretized model of a binary distillation column [1],[2] with dimension $n^f = 86$. |
-| tubularReactor | A continuous-time model of a controlled chemical reaction process [3] with dimension $n^f = 600$. |
-| heatflow | A time-discretized model for a distributed control heat flow problem with dimension $n^f = 3,481$. This model is a modified version of the HF2D9 model described in [4].       |
-| supersonicDiffuser | A time-discretized CFD model for the active control of a supersonic diffuser [5],[6] with dimension $n^f = 11,730$. |
-| aircraft | A continuous-time aircraft dynamics model [7],[8] (with an embedded CFD aerodynamics model) with dimension $n^f = 0$.        |
+| smallSynthetic                                      | A synthetic discrete-time example with dimension = 6.       |
+| largeSynthetic                    | A synthetic discrete-time example with dimension = 20.       |
+| distillationColumn               | A time-discretized model of a binary distillation column [1],[2] with dimension = 86. |
+| tubularReactor | A continuous-time model of a controlled chemical reaction process [3] with dimension = 600. |
+| heatflow | A time-discretized model for a distributed control heat flow problem with dimension = 3,481. This model is a modified version of the HF2D9 model described in [4].       |
+| supersonicDiffuser | A time-discretized CFD model for the active control of a supersonic diffuser [5],[6] with dimension = 11,730. |
+| aircraft | A continuous-time aircraft dynamics model [7],[8] (with an embedded CFD aerodynamics model) with dimension = 0.        |
 
 ## References ##
 [1] S. Skogestad and M. Morari, "Understanding the dynamic behavior of distillation columns", Ind. & Eng. Chem. Research, 27, 10, 1848-1862 (1988) 
