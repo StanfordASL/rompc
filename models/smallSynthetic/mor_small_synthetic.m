@@ -4,7 +4,7 @@ path = fileparts(which('mor_small_synthetic.m'));
 
 % Compute ROM
 n = 4;
-[A, B, C, W, V, S] = balancedTruncationDiscrete(FOM.Af, FOM.Bf, FOM.Cf, n);
+[A, B, C, W, V, S] = balancedTruncation(FOM.Af, FOM.Bf, FOM.Cf, n, false);
 H = FOM.Hf*V;
 Bw = W'*FOM.Bfw;
 

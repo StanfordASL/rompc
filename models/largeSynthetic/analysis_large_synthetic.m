@@ -1,7 +1,7 @@
 clear; clc;
-path = fileparts(which('analysis_heatflow.m'));
+path = fileparts(which('analysis_large_synthetic.m'));
 
-[~, ~, ~, Z, U] = heatflow(false);
+[~, ~, ~, Z, U] = largeSynthetic(false);
 
 % Analyze error bounds WITH noise
 load(strcat(path, '/data/EBOUND.mat'));

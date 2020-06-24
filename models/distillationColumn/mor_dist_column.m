@@ -11,7 +11,7 @@ Hfscaled = inv(Dz)*FOM.Hf;
 Bfscaled = FOM.Bf*Du;
 
 n = 12;
-[A, ~, ~, W, V, S] = balancedTruncationDiscreteUnstable(FOM.Af, Bfscaled, Hfscaled, n);
+[A, ~, ~, W, V, S] = balancedTruncationUnstable(FOM.Af, Bfscaled, Hfscaled, n, false);
 B = W'*FOM.Bf;
 Bw = W'*FOM.Bfw;
 C = FOM.Cf*V;

@@ -11,7 +11,7 @@ Hf = FOM.Hf(:,1:end-1);
 
 % Compute ROM
 n = 10;
-[A, ~, ~, W, V, S] = balancedTruncationDiscrete(Af, Bf, Hf, n);
+[A, ~, ~, W, V, S] = balancedTruncation(Af, Bf, Hf, n, false);
 B = W'*Bf;
 Bw = W'*Bfw;
 C = Cf*V;

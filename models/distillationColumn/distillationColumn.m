@@ -5,7 +5,9 @@ function [FOM, ROM, CTRL, Z, U, NOISE, EBOUND] = distillationColumn(regen)
 %control constraints. Loads error data if it exists.
 %
 %From Skogestad, S. and Morari, M. "Understanding the dynamic behavior of
-%distillation columns", 1988.
+%distillation columns", Ind. & Eng. Chem. Research, 27, 10, 1848-1862
+%(1988) and Skogestad, S. and Postlethwaite, I. "Multivariable Feedback
+%Control", Wiley (1996)
 %
 % Inputs:
 %   regen: false to just load everything from data files

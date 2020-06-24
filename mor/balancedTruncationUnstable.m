@@ -1,21 +1,28 @@
-function [A, B, C, W, V, S] = balancedTruncationDiscreteUnstable(Af, Bf, Cf, k)
-%[A, B, C, W, V, S] = balancedTruncationDiscreteUnstable(Af, Bf, Cf, k)
+function [A, B, C, W, V, S] = balancedTruncationUnstable(Af, Bf, Cf, k, continuous)
+%[A, B, C, W, V, S] = balancedTruncationUnstable(Af, Bf, Cf, k, continuous)
 %
-% Perform balanced truncation on a unstable discrete LTI system, assuming
-% (Af, Bf) is controllable and (Af, Cf) is observable.
-%   Balanced truncation model order reduction to order k
+%Perform balanced truncation on a unstable continuous (discrete) LTI system, assuming
+%(Af, Bf) is controllable and (Af, Cf) is observable.
+%First performs a stable/unstable mode decomposition and only reduces the
+%stable subsystem.
+%
 % Inputs: 
-%       Af, Bf, Cf: full order system matrices
-%       k: reduced model order
+%   Af, Bf, Cf: full order system matrices
+%   k: reduced model order
+%   continuous: true for continuous time system, false for discrete time
 %
 % Returns:
-%       A, B, C: reduced order system matrices
-%       W, V: Petrov-Galerkin projection matrices W'*V = I
-%       S: singular values
+%   A, B, C: reduced order system matrices
+%   W, V: Petrov-Galerkin projection matrices W'*V = I
+%   S: singular values
 
 nf = size(Af,1);
 m = size(Bf,2);
-sysf = ss(full(Af), full(Bf), eye(nf), zeros(nf,m), -1);
+if continuous
+    sysf = ss(full(Af), full(Bf), eye(nf), zeros(nf,m));
+else
+    sysf = ss(full(Af), full(Bf), eye(nf), zeros(nf,m), -1);
+end
 fprintf('Performing stable unstable decomposition.\n');
 [S, NS] = stabsep(sysf); % decompose system into stable and unstable parts
 
@@ -34,7 +41,7 @@ nROM = k - nfunstable;
 fprintf('Performing model reduction.\n');
 Cftransformed = Cf*T;
 Cfstable = Cftransformed(:, nfunstable + 1:end);
-[~, ~, ~, Wstable, Vstable, S] = balancedTruncationDiscrete(Afstable, Bfstable, Cfstable, nROM);
+[~, ~, ~, Wstable, Vstable, S] = balancedTruncation(Afstable, Bfstable, Cfstable, nROM, continuous);
 
 % Combine to make full ROM
 W = ([eye(nfunstable), zeros(nfunstable, nROM);

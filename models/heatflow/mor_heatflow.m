@@ -4,7 +4,7 @@ path = fileparts(which('mor_heatflow.m'));
 
 % Compute ROM
 n = 21;
-[A, B, C, W, V, S] = balancedTruncationDiscreteUnstable(FOM.Af, FOM.Bf, FOM.Cf, n);
+[A, B, C, W, V, S] = balancedTruncationUnstable(FOM.Af, FOM.Bf, FOM.Cf, n, false);
 Bw = W'*FOM.Bfw;
 H = FOM.Hf*V;
 

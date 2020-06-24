@@ -4,7 +4,7 @@ path = fileparts(which('mor_tubular_reactor.m'));
 
 % Compute ROM
 n = 30;
-[A, B, ~, W, V, S] = balancedTruncationContinuous(FOM.Af, FOM.Bf, [FOM.Cf; FOM.Hf], n);
+[A, B, ~, W, V, S] = balancedTruncation(FOM.Af, FOM.Bf, [FOM.Cf; FOM.Hf], n, true);
 C = FOM.Cf*V;
 H = FOM.Hf*V;
 Bw = W'*FOM.Bfw;
