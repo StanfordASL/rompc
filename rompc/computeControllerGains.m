@@ -134,7 +134,7 @@ if strcmp(opts.method, 'h2sofo')
         fprintf('via the reduced order model.\n');
         warmstart_opts = opts;
         warmstart_opts.method = 'ric';
-        [Kinit, Linit] = h2optController(FOM, ROM, warmstart_opts);
+        [Kinit, Linit] = computeControllerGains(FOM, ROM, warmstart_opts);
         bfgsoptions.init = [Linit, zeros(n,n);
                             zeros(m,p), Kinit];
     end
