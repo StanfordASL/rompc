@@ -31,7 +31,7 @@ o = size(FOM.Hf, 1);
 if isstruct(ROMPC)
     precompiled = false;
     rompc = true;
-elseif strcmp(class(ROMPC), 'optimizer')
+elseif isa(ROMPC, 'optimizer')
     precompiled = true;
     rompc = true;
 elseif ismatrix(ROMPC)

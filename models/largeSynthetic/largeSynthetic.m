@@ -57,7 +57,7 @@ end
 % Constraints
 zUB = ones(1,o);
 zLB = -zUB;
-uUB = ones(1,m);
+uUB = 0.25*ones(1,m);
 uLB = -uUB;
 Z = rectanglePolytope(zUB, zLB);
 U = rectanglePolytope(uUB, uLB);

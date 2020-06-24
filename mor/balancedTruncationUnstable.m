@@ -38,7 +38,7 @@ T = [Tfunstable, Tfstable]; % such that T^-1 Af T = diag(Afunstable, Afstable)
 
 % Compute reduced order model of the stable part of the system
 nROM = k - nfunstable;
-fprintf('Performing model reduction.\n');
+fprintf('Performing model reduction, reducing %d to %d.\n', nfstable, nROM);
 Cftransformed = Cf*T;
 Cfstable = Cftransformed(:, nfunstable + 1:end);
 [~, ~, ~, Wstable, Vstable, S] = balancedTruncation(Afstable, Bfstable, Cfstable, nROM, continuous);
