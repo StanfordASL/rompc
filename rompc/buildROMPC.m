@@ -20,6 +20,7 @@ function [ROMPC, XF, SP, Zbar, Ubar, OPT] = buildROMPC(ROM, Z, U, EBOUND, N, opt
 %       - solver: solver for YALMIP (string), e.g. 'cplex' or 'mosek'
 %       - output_x1: true have object output u(k) and x(k+1), false to just
 %                    output u(k) (default)
+%       - xf_datapath: path for where to save or load terminal set
 %
 % Returns:
 %   ROMPC: without opt.setpoints returns ROMPC optimization object for the
@@ -84,17 +85,29 @@ o = size(ROM.H,1);
 % Tighten constraints based on error bounds
 [~, ~, Zbar, Ubar] = tightenConstraints(Z, U, EBOUND, opt.eta_2tau);
 
-% Compute a terminal controller and cost for MPC stability guarantees
-[K, P, ~] = dlqr(Ad, -Bd, ROM.Q, ROM.R);
+if isfield(opt, 'xf_datapath') && exist(opt.xf_datapath, 'file')
+    fprintf('******************************\n');
+    fprintf('Loading terminal set from %s.\nDelete this file to recompute.\n', opt.xf_datapath);
+    fprintf('******************************\n\n');
+    load(opt.xf_datapath, 'Xf', 'K', 'P');
+else
+    % Compute a terminal controller and cost for MPC stability guarantees
+    [K, P, ~] = dlqr(Ad, -Bd, ROM.Q, ROM.R);
 
-% Compute terminal set for origin
-fprintf('Computing terminal set.\n');
-Zf = Polyhedron(Z.A*ROM.H, Z.b);
-Xbar1 = boundingBox(Zf, opt);
-Xbar2 = Polyhedron(Zbar.A*ROM.H, Zbar.b);
-Xbar = Xbar1.intersect(Xbar2);
-Xf = computeTerminalSet(Ad, Bd, eye(n), K, Xbar, Ubar, zeros(n,1), zeros(m,1), opt);
-Xf.minHRep();
+    % Compute terminal set for origin
+    fprintf('Computing terminal set.\n');
+    Zf = Polyhedron(Z.A*ROM.H, Z.b);
+    Xbar1 = boundingBox(Zf, opt);
+    Xbar2 = Polyhedron(Zbar.A*ROM.H, Zbar.b);
+    Xbar = Xbar1.intersect(Xbar2);
+    Xf = computeTerminalSet(Ad, Bd, eye(n), K, Xbar, Ubar, zeros(n,1), zeros(m,1), opt);
+    Xf.minHRep();
+    
+    if isfield(opt, 'xf_datapath')
+        fprintf('Saving terminal set data to %s\n', opt.xf_datapath);
+        save(opt.xf_datapath, 'Xf','K','P');
+    end
+end
 
 % ROMPC for origin tracking
 [ROMPC, OPT] = buildMPC(Ad, Bd, P, ROM.Q, ROM.R, ROM.H, Zbar, Ubar, Xf, N, zeros(n,1), zeros(m,1), opt);
