@@ -125,6 +125,9 @@ end
 if continuous
     T = max(floor(Xbar_tau/dt), size(ROM.A,1));
     Xbar_idx = floor(Xbar_t/dt) + 1;
+    if Xbar_idx == T + 1
+        Xbar_idx = T;
+    end
 else
     T = max(Xbar_tau, size(ROM.A,1));
     Xbar_idx = Xbar_t;
