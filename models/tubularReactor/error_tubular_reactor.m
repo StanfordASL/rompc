@@ -4,11 +4,11 @@ path = fileparts(which('error_tubular_reactor.m'));
 [FOM, ROM, CTRL, Z, U, NOISE] = tubularReactor(false);
 opts.continuous = true;
 
-opt.G_method = 'Lyap';
+opts.G_method = 'Lyap';
 opts.dt = 0.05; % for continuous time
-opt.mat_exp_method = 'expm';
-opt.Cr_method = 'upperbound';
-opt.Cw_method = 'upperbound';
+opts.mat_exp_method = 'expm';
+opts.Cr_method = 'upperbound';
+opts.Cw_method = 'upperbound';
 tau = 60;
 opts.normbound_datapath = strcat(path, '/data/NORMBOUND.mat');
 opts.errormats_datapath = strcat(path, '/data/ERRORMATS.mat');
