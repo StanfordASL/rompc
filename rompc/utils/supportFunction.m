@@ -17,9 +17,7 @@ function [prob] = supportFunction(N, M, opt)
 %   diagnostics: solver info (optimizer = false)
 %   prob: optimizer object,  (optimizer = true)
 
-if ~isfield(opt, 'solver')
-    opt.solver = 'cplex';
-end
+opt.solver = 'cplex';
 
 a = sdpvar(N, 1);
 w = sdpvar(N, 1);

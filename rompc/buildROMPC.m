@@ -1,37 +1,39 @@
-function [ROMPC, XF, SP, Zbar, Ubar, OPT] = buildROMPC(ROM, Z, U, EBOUND, N, opt)
-%[ROMPC, XF, SP, Zbar, Ubar, OPT] = buildROMPC(ROM, Z, U, EBOUND, N, opt)
+function [ROMPC, Xf, SP, Zbar, Ubar] = buildROMPC(ROM, Z, U, EBOUND, N, opt)
+%[ROMPC, Xf, SP, Zbar, Ubar] = buildROMPC(ROM, Z, U, EBOUND, N, opt)
 %
 %Defines the ROMPC problem for a ROM with given constraints Z and U on the
 %FOM and computed error bounds to tighten these constraints.
 %
 % Inputs:
-%   ROM:
+%   ROM: reduced order model structure
 %   Z, U: polyhedral constraint sets
 %   EBOUND: error structure
 %   N: ROMPC time horizon (integer)
-%   opt: optional arguments
-%       - continuous (discrete): actually required
+%   opt: options arguments
+%       - continuous (discrete): true or false
 %       - eta_2tau: value for constraint tightening, default = 0
-%       - setpoints: struct containing:
+%       - setpoint: struct containing:
 %               - FOM: full order model structure
 %               - CTRL: controller data structure
 %               - T: matrix specifying tracking variables r = Tz
 %               - r: cell array of tracking column vectors, size(t,1)
+%                   defaults to the origin if opt.setpoint is not defined
 %       - solver: solver for YALMIP (string), e.g. 'cplex' or 'mosek'
-%       - output_x1: true have object output u(k) and x(k+1), false to just
-%                    output u(k) (default)
 %       - xf_datapath: path for where to save or load terminal set
 %
 % Returns:
-%   ROMPC: without opt.setpoints returns ROMPC optimization object for the
-%          origin. If opt.setpoints, then ROMPC is a cell array containing
-%          optimization objects for origin + setpoints
-%   Xf: without opt.setpoints returns terminal set for origin. Otherwise a
-%       cell array like ROMPC
-%   SP: without opt.setpoints is empty struct. Otherwise contains cell
-%       array of structs that have the setpoints information
+%   ROMPC: struct with 
+%       - rompc: precompiled YALMIP problem
+%       - prob: uncompiled YALMIP optimization problem
+%       - dt: time discretization for ROMPC, -1 for discrete time problem
+%   Xf: terminal set for defined opt.setpoint, or the origin
+%   SP: setpoint steady state information
 %   Zbar: tightened constraints
 %   Ubar: tightened control constraints
+
+n = size(ROM.A,1);
+m = size(ROM.B,2);
+o = size(ROM.H,1);
 
 if isfield(opt, 'continuous')
     continuous = opt.continuous;
@@ -47,27 +49,39 @@ if ~isfield(opt, 'eta_2tau')
     opt.eta_2tau = 0;
 end
 
-Nr = 0;
-if isfield(opt, 'setpoints')
+% Tighten constraints based on error bounds
+[~, ~, Zbar, Ubar] = tightenConstraints(Z, U, EBOUND, opt.eta_2tau);
+
+% Handle setpoints
+if isfield(opt, 'setpoint')
     if ~isfield(opt, 'FOM') || ~isfield(opt, 'CTRL')
-        fprintf('Need to include opt.FOM and opt.CTRL to compute setpoints.\n');
+        error('Need to include opt.FOM and opt.CTRL to compute setpoints.');
     end
     
     % Extract matrix such that r = Tz
-    if ~isfield(opt.setpoints, 'T')
+    if ~isfield(opt.setpoint, 'T')
         T = eye(o);
     else
-        T = opt.setpoints.T;
+        T = opt.setpoint.T;
     end
     
-    if ~isfield(opt.setpoints, 'r') || (isfield(opt.setpoints, 'r') && size(r,1) ~= size(T,1))
-        fprintf('Need valid setpoints in cell array opt.setpoints.r\n');
+    if ~isfield(opt.setpoint, 'r') || (isfield(opt.setpoint, 'r') && size(r,1) ~= size(T,1))
+        error('Need valid setpoint in opt.setpoint.r');
     else
         r = opt.setpoints.r;
     end
-    Nr = length(r);
+    fprintf('Computing setpoint.\n');
+    if continuous
+        [SP.xfss, SP.uss, SP.xbarss, SP.ubarss, SP.xhatss] = computeSteadyStateContinuousTime(opt.FOM, ROM, opt.CTRL, Z, U, Zbar, Ubar, T, r);
+    else
+        [SP.xfss, SP.uss, SP.xbarss, SP.ubarss, SP.xhatss] = computeSteadyStateDiscreteTime(opt.FOM, ROM, opt.CTRL, Z, U, Zbar, Ubar, T, r);
+    end
+else
+    SP.xbarss = zeros(n,1);
+    SP.ubarss = zeros(m,1);
 end
 
+% Discretize ROM if continuous time
 if continuous
     if ~isfield(EBOUND, 'dt')
         fprintf('EBOUND needs to specify time discretization.\n');
@@ -78,18 +92,13 @@ else
     Bd = ROM.B;
 end
 
-n = size(ROM.A,1);
-m = size(ROM.B,2);
-o = size(ROM.H,1);
-
-% Tighten constraints based on error bounds
-[~, ~, Zbar, Ubar] = tightenConstraints(Z, U, EBOUND, opt.eta_2tau);
-
+% Compute terminal set
 if isfield(opt, 'xf_datapath') && exist(opt.xf_datapath, 'file')
     fprintf('******************************\n');
     fprintf('Loading terminal set from %s.\nDelete this file to recompute.\n', opt.xf_datapath);
     fprintf('******************************\n\n');
-    load(opt.xf_datapath, 'Xf', 'K', 'P');
+    load(opt.xf_datapath, 'Xf', 'K', 'P', 'SP');
+    fprintf('Using setpoint that was used to define saved terminal set.\n');
 else
     % Compute a terminal controller and cost for MPC stability guarantees
     [K, P, ~] = dlqr(Ad, -Bd, ROM.Q, ROM.R);
@@ -100,44 +109,23 @@ else
     Xbar1 = boundingBox(Zf, opt);
     Xbar2 = Polyhedron(Zbar.A*ROM.H, Zbar.b);
     Xbar = Xbar1.intersect(Xbar2);
-    Xf = computeTerminalSet(Ad, Bd, eye(n), K, Xbar, Ubar, zeros(n,1), zeros(m,1), opt);
+    Xf = computeTerminalSet(Ad, Bd, eye(n), K, Xbar, Ubar, SP.xbarss, SP.ubarss, opt);
     Xf.minHRep();
     
     if isfield(opt, 'xf_datapath')
         fprintf('Saving terminal set data to %s\n', opt.xf_datapath);
-        save(opt.xf_datapath, 'Xf','K','P');
+        save(opt.xf_datapath, 'Xf','K','P','SP');
     end
 end
 
-% ROMPC for origin tracking
-[ROMPC, OPT] = buildMPC(Ad, Bd, P, ROM.Q, ROM.R, ROM.H, Zbar, Ubar, Xf, N, zeros(n,1), zeros(m,1), opt);
-SP = struct();
-XF = Xf;
-
-if Nr > 0
-    ROMPC = {ROMPC};
-    OPT = {OPT};
-    XF = {Xf};
-    SP = {SP};
-    for i = 1:Nr
-        fprintf('Computing setpoint.\n');
-        if continuous
-            [sp.xfss, sp.uss, sp.xbarss, sp.ubarss, sp.xhatss] = computeSteadyStateContinuousTime(opt.FOM, ROM, CTRL, Z, U, Zbar, Ubar, T, r{i});
-        else
-            [sp.xfss, sp.uss, sp.xbarss, sp.ubarss, sp.xhatss] = computeSteadyStateDiscreteTime(opt.FOM, ROM, CTRL, Z, U, Zbar, Ubar, T, r{i});
-        end
-        fprintf('Computing terminal set.\n');
-        Xf = computeTerminalSet(Ad, Bd, eye(n), K, Xbar, Ubar, sp.xbarss, sp.ubarss, opt);
-        Xf.minHRep();
-        
-        % Set up ROMPC object
-        [ROMPC{i+1}, OPT{i+1}] = buildMPC(Ad, Bd, P, ROM.Q, ROM.R, ROM.H, Zbar, Ubar, Xf, N, sp.xbarss, sp.ubarss, opt);
-        
-        % Store new data
-        XF{i+1} = Xf;
-        SP{i+1} = sp;
-    end
+% ROMPC for setpoint tracking
+[rompc, prob] = buildMPC(Ad, Bd, P, ROM.Q, ROM.R, ROM.H, Zbar, Ubar, Xf, N, SP.xbarss, SP.ubarss, opt);
+ROMPC.rompc = rompc;
+ROMPC.prob = prob;
+if continuous
+    ROMPC.dt = EBOUND.dt;
+else
+    ROMPC.dt = -1;
 end
 
 end
-
