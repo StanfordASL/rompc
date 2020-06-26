@@ -1,4 +1,4 @@
-<p align="center"><img width="100%" src="img/perspective_mesh.png"/></p>
+<p align="center"><img width="75%" src="img/perspective_mesh.png"/></p>
 
 # ROMPC: Reduced Order Model Predictive Control #
 This repository provides an implementation of the reduced order model predictive control scheme described in (journal paper)
