@@ -1,4 +1,4 @@
-<p align="center"><img width="50%" src="img/heatflow.png"/></p>
+<p align="center"><img width="100%" src="img/perspective_mesh.png"/></p>
 
 # ROMPC: Reduced Order Model Predictive Control #
 This repository provides an implementation of the reduced order model predictive control scheme described in (journal paper)
@@ -54,4 +54,5 @@ This repository also contains some open-source code that implements methods that
 
 [11] S. Gumussoy, D. Henrion, M. Millstone and M.L. Overton. "Multiobjective Robust Control with HIFOO 2.0", Proceedings of the IFAC Symposium on Robust Control Design (2009)
 
+<p align="center"><img width="50%" src="img/heatflow.png"/></p>
 
