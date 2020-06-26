@@ -1,4 +1,4 @@
-% clear; clc; close all;
+clear; clc; close all;
 path = fileparts(which('rompc_small_synthetic.m'));
 
 % Load system
@@ -11,9 +11,8 @@ o = size(FOM.Hf, 1);
 opt.discrete = true;
 
 N = 20;
-[ROMPC, XF, SP, Zbar, Ubar, PROB] = buildROMPC(ROM, Z, U, EBOUND, N, opt);
+[ROMPC, Xf, SP, Zbar, Ubar] = buildROMPC(ROM, Z, U, EBOUND, N, opt);
 
-%%
 % ROMPC
 T = [0, 1];
 r = [25];
@@ -24,7 +23,7 @@ X0.xhat = xhatss;
 X0.xbar = xbarss;
 T = 50;
 opt.NOISE = NOISE; % to include uniform random bounded noise
-[DATA_ROMPC] = simulateROMPC(FOM, ROM, CTRL, PROB, Zbar, T, X0, opt);
+[DATA_ROMPC] = simulateROMPC(FOM, ROM, CTRL, ROMPC.prob, Zbar, T, X0, opt);
 save(strcat(path, '/data/DATA_ROMPC.mat'),'DATA_ROMPC');
 
 % ROLQR

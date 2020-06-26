@@ -11,7 +11,7 @@ o = size(FOM.Hf, 1);
 opt.discrete = true;
 
 N = 20;
-[ROMPC, XF, SP, Zbar, Ubar, PROB] = buildROMPC(ROM, Z, U, EBOUND, N, opt);
+[ROMPC, Xf, SP, Zbar, Ubar] = buildROMPC(ROM, Z, U, EBOUND, N, opt);
 
 % ROMPC
 T = eye(1);
@@ -22,7 +22,7 @@ X0.xf = xfss;
 X0.xhat = xhatss;
 X0.xbar = xbarss;
 T = 50;
-[DATA_ROMPC] = simulateROMPC(FOM, ROM, CTRL, ROMPC, Zbar, T, X0, opt);
+[DATA_ROMPC] = simulateROMPC(FOM, ROM, CTRL, ROMPC.rompc, Zbar, T, X0, opt);
 save(strcat(path, '/data/DATA_ROMPC.mat'),'DATA_ROMPC');
 
 % ROLQR

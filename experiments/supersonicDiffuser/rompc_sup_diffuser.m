@@ -12,7 +12,7 @@ opt.discrete = true;
 
 N = 20;
 EBOUND.Dz_2(3:4) = 0; % Don't need actually need constraints on the estimated d
-[ROMPC, XF, SP, Zbar, Ubar, PROB] = buildROMPC(ROM, Z, U, EBOUND, N, opt);
+[ROMPC, Xf, SP, Zbar, Ubar] = buildROMPC(ROM, Z, U, EBOUND, N, opt);
 
 % ROMPC
 T = [1, 0];
@@ -32,7 +32,7 @@ opt.NOISE.wf = [wf_profile(2:end) - 0.95*wf_profile(1:end-1), 0];
 opt.NOISE.V = NOISE.V; % to include uniform random bounded noise
 
 % Simulate with the Gaussian noise profile
-[DATA_ROMPC] = simulateROMPC(FOM, ROM, CTRL, ROMPC, Zbar, T, X0, opt);
+[DATA_ROMPC] = simulateROMPC(FOM, ROM, CTRL, ROMPC.rompc, Zbar, T, X0, opt);
 DATA_ROMPC.wf = opt.NOISE.wf;
 DATA_ROMPC.dt = params.dt;
 save(strcat(path, '/data/DATA_ROMPC.mat'),'DATA_ROMPC');

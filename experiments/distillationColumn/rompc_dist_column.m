@@ -12,7 +12,7 @@ opt.discrete = true;
 
 N = 50;
 opt.solver = 'mosek';
-[ROMPC, XF, SP, Zbar, Ubar, PROB] = buildROMPC(ROM, Z, U, EBOUND, N, opt);
+[ROMPC, Xf, SP, Zbar, Ubar] = buildROMPC(ROM, Z, U, EBOUND, N, opt);
 
 % Initial conditions (make sure they satisfy initial conditions on sets)
 T = [eye(4), zeros(4,4)];
@@ -25,7 +25,7 @@ X0.xhat = xhatss;
 X0.xbar = xbarss;
 T = 150;
 opt.NOISE = NOISE;
-[DATA_ROMPC] = simulateROMPC(FOM, ROM, CTRL, PROB, Zbar, T, X0, opt);
+[DATA_ROMPC] = simulateROMPC(FOM, ROM, CTRL, ROMPC.prob, Zbar, T, X0, opt);
 save(strcat(path, '/data/DATA_ROMPC.mat'),'DATA_ROMPC');
 
 % Simulate ROLQR
