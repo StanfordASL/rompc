@@ -114,12 +114,12 @@ plot(DATA_ROMPC.u_dim(3,:),'color',colors{3},'marker',markers{3},'markerindices'
 plot(uUB*ones(1,DATA_ROMPC.T), 'color','k','Linewidth',1,'Linestyle','--');
 plot(uLB*ones(1,DATA_ROMPC.T), 'color','k','Linewidth',1,'Linestyle','--');
 ylim([295, 400]);
-xlabel('Time, $k$','Interpreter','latex','FontSize',22);
-ylabel('Control Input, $u(k)$','Interpreter','latex','FontSize',22);
+xlabel('Time, [s]','Interpreter','latex','FontSize',22);
+ylabel('Jacket Temperatures, [K]','Interpreter','latex','FontSize',22);
 legend({'$T_{J1}$', '$T_{J2}$', '$T_{J3}$', 'constraints'}, 'Interpreter','latex',...
             'FontSize',18,'Location','east','Orientation','vertical');
 legend('boxoff');
-% filename = strcat(figpath, 'u_template');
+% filename = strcat(figpath, 'u_tubular_reactor');
 % export_fig(filename, '-png', '-m2')
 % export_fig(filename, '-pdf')
 
