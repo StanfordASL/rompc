@@ -1,7 +1,7 @@
 <p align="center"><img width="75%" src="img/perspective_mesh.png"/></p>
 
 # ROMPC: Reduced Order Model Predictive Control #
-This repository provides an implementation of the reduced order model predictive control scheme described in (journal paper)
+This repository provides an implementation of the reduced order model predictive control scheme described in the publications below.
 
 ## Relevant Publications ##
 J. Lorenzetti and M. Pavone, [“Error Bounds for Reduced Order Model Predictive Control,”](https://arxiv.org/pdf/1911.12349.pdf) in _Proc. IEEE Conf. on Decision and Control_, Jeju Island, Republic of Korea, 2020. (Submitted)
@@ -12,7 +12,7 @@ J. Lorenzetti, B. Landry, S. Singh, and M. Pavone, [“Reduced Order Model Predi
 [MATLAB](https://www.mathworks.com/products/matlab.html)<br/>
 [MPT3](https://www.mpt3.org/)<br/>
 [YALMIP](https://yalmip.github.io/)<br/>
-LP/QP solver (e.g [CPLEX](https://www.ibm.com/analytics/cplex-optimizer) or [MOSEK](https://www.mosek.com/))<br/>
+LP/QP solvers (e.g [CPLEX](https://www.ibm.com/analytics/cplex-optimizer) and [MOSEK](https://www.mosek.com/))<br/>
 
 ## Example Models ##
 The following examples are included in this repository:
