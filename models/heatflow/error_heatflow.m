@@ -4,10 +4,10 @@ path = fileparts(which('error_heatflow.m'));
 [FOM, ROM, CTRL, Z, U, NOISE] = heatflow(false);
 opts.discrete = true;
 
-opts.G_method = 'BatchGP';
+opts.G_method = 'Lyap';
 opts.Cr_method = 'hyperrect';
 opts.Cw_method = 'hyperrect';
-tau = 2000;
+tau = 1500;
 opts.Xbar_tau = 500;
 opts.normbound_datapath = strcat(path, '/data/NORMBOUND.mat');
 opts.errormats_datapath = strcat(path, '/data/ERRORMATS.mat');
