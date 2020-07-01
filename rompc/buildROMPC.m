@@ -54,9 +54,15 @@ end
 
 % Handle setpoints
 if isfield(opt, 'setpoint')
-    if ~isfield(opt, 'FOM') || ~isfield(opt, 'CTRL')
-        error('Need to include opt.FOM and opt.CTRL to compute setpoints.');
+    if ~isfield(opt.setpoint, 'FOM') || ~isfield(opt.setpoint, 'CTRL')
+        error('Need to include opt.setpoint.FOM and opt.setpoint.CTRL to compute setpoints.');
     end
+    FOM = opt.setpoint.FOM;
+    CTRL = opt.setpoint.CTRL;
+    
+    % Remove them because no need to have them saved later
+    opt.setpoint = rmfield(opt.setpoint, 'FOM');
+    opt.setpoint = rmfield(opt.setpoint, 'CTRL');
     
     % Extract matrix such that r = Tz
     if ~isfield(opt.setpoint, 'T')
@@ -65,16 +71,17 @@ if isfield(opt, 'setpoint')
         T = opt.setpoint.T;
     end
     
-    if ~isfield(opt.setpoint, 'r') || (isfield(opt.setpoint, 'r') && size(r,1) ~= size(T,1))
+    if ~isfield(opt.setpoint, 'r') || (isfield(opt.setpoint, 'r') && ...
+                size(opt.setpoint.r,1) ~= size(opt.setpoint.T,1))
         error('Need valid setpoint in opt.setpoint.r');
     else
-        r = opt.setpoints.r;
+        r = opt.setpoint.r;
     end
     fprintf('Computing setpoint.\n');
     if continuous
-        [SP.xfss, SP.uss, SP.xbarss, SP.ubarss, SP.xhatss] = computeSteadyStateContinuousTime(opt.FOM, ROM, opt.CTRL, Z, U, Zbar, Ubar, T, r);
+        [SP.xfss, SP.uss, SP.xbarss, SP.ubarss, SP.xhatss] = computeSteadyStateContinuousTime(FOM, ROM, CTRL, Z, U, Zbar, Ubar, T, r);
     else
-        [SP.xfss, SP.uss, SP.xbarss, SP.ubarss, SP.xhatss] = computeSteadyStateDiscreteTime(opt.FOM, ROM, opt.CTRL, Z, U, Zbar, Ubar, T, r);
+        [SP.xfss, SP.uss, SP.xbarss, SP.ubarss, SP.xhatss] = computeSteadyStateDiscreteTime(FOM, ROM, CTRL, Z, U, Zbar, Ubar, T, r);
     end
 else
     SP.xbarss = zeros(n,1);

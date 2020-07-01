@@ -166,6 +166,7 @@ for t = 1:T
             xbar_k = sol{2};
             if ~Zbar.contains(ROM.H*xbar_k)
                 xbar_k = proj(xbar_k);
+                disp(xbar_k);
             end
             i = 1;
         elseif continuous && i ~= update
