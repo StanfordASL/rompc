@@ -12,7 +12,7 @@ J. Lorenzetti, B. Landry, S. Singh, and M. Pavone, [“Reduced Order Model Predi
 [MATLAB](https://www.mathworks.com/products/matlab.html)<br/>
 [MPT3](https://www.mpt3.org/)<br/>
 [YALMIP](https://yalmip.github.io/)<br/>
-LP/QP solvers (e.g [CPLEX](https://www.ibm.com/analytics/cplex-optimizer) and [MOSEK](https://www.mosek.com/))<br/>
+LP/QP solvers [CPLEX](https://www.ibm.com/analytics/cplex-optimizer) and [MOSEK](https://www.mosek.com/)<br/>
 
 ## Example Models ##
 The following examples are included in this repository:
@@ -29,7 +29,7 @@ The following examples are included in this repository:
 ## Notes ##
 This repository also contains some open-source code that implements methods that are optionally used when computing the error bounds and controller gains. In particular, this repository contains:
 1. [expmv](https://github.com/higham/expmv) is a MATLAB function that computes the matrix exponential times a vector without explicitly forming the matrix exponential. This technique is based on [9]. ROMPC uses this as an option for computing the matrices used in computing the error bounds in the function recursiveMatExpAction().
-2. [HIFOO](https://cs.nyu.edu/overton/software/hifoo/) is a MATLAB package for fixed-order controller design based on nonsmooth, nonconvex optimization. This package is described in [10],[11] and uses the optimization package [HANSO](https://cs.nyu.edu/overton/software/hanso/). In this repository we include a modified version of this package which we refer to as H2SOFO (for H2 Static Output Feedback Optimization). This modified version includes only the funcationality of HIFOO related to optimizing fixed order static (structured) controllers, and additionally includes the ability to consider discrete time problems. This code is used in the function computeControllerGains().
+2. [HIFOO](https://cs.nyu.edu/overton/software/hifoo/) is a MATLAB package for fixed-order controller design based on nonsmooth, nonconvex optimization. This package is described in [10],[11] and uses the optimization package [HANSO](https://cs.nyu.edu/overton/software/hanso/). In this repository we include a modified version of this package which we refer to as H2SOFO (for H2 Static Output Feedback Optimization). This modified version includes only the functionality of HIFOO related to optimizing fixed order static (structured) controllers, and additionally includes the ability to consider discrete time problems. This code is used in the function computeControllerGains().
 
 ## References ##
 [1] S. Skogestad and M. Morari, "Understanding the dynamic behavior of distillation columns", Ind. & Eng. Chem. Research, 27, 10, 1848-1862 (1988) 
