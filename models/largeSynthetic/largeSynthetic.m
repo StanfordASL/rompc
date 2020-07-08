@@ -1,5 +1,5 @@
-function [FOM, ROM, CTRL, Z, U, NOISE, EBOUND] = nuclearReactor(regen)
-%[FOM, ROM, CTRL, Z, U, NOISE, EBOUND] = nuclearReactor(regen)
+function [FOM, ROM, CTRL, Z, U, NOISE, EBOUND] = largeSynthetic(regen)
+%[FOM, ROM, CTRL, Z, U, NOISE, EBOUND] = largeSynthetic(regen)
 %
 %Loads the system FOM, ROM, controllers, constraints, and disturbances. Defines the state and
 %control constraints. Loads error bounds if they have already been

@@ -16,6 +16,7 @@ function [K, L] = computeControllerGains(FOM, ROM, opts)
 %       - Wu, weights for u, default = I
 %       - regularize: add some regularization with method = 'ric', makes
 %         cost H'*Wz'*Wz*H + regularize*I, default = 0
+%       - gamma: regularization for Q_w = Bw'*Bw + gamma*I, default = 1
 %
 % Returns:
 %   K: controller gains
@@ -60,15 +61,19 @@ if ~isfield(opts, 'regularize')
     opts.regularize = 0;
 end
 
+if ~isfield(opts, 'gamma')
+    opts.gamma = 1;
+end
+
 % Riccati based method
 if strcmp(opts.method, 'ric')
     fprintf('Computing the LQG solution via model reduction.\n');
     QK = ROM.H'*opts.Wz'*opts.Wz*ROM.H + opts.regularize*eye(n);
     RK = opts.Wu'*opts.Wu;
     if isfield(ROM, 'Bw') && size(ROM.Bw,1) == n && opts.with_noise
-        QL = ROM.Bw*ROM.Bw' + eye(n);
+        QL = ROM.Bw*ROM.Bw' + opts.gamma*eye(n);
     else
-        QL = eye(n);
+        QL = opts.gamma*eye(n);
     end
     RL = eye(p);
 
