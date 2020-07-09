@@ -102,6 +102,10 @@ P = [eye(n); -eye(n)];
 
 % Solve LPs to get p^Tx <= b
 ops = sdpsettings('verbose', 0, 'solver', opt.solver, 'savesolveroutput', 1);
+if strcmp(opt.solver, 'cplex')
+    ops.cplex.lpmethod = 4;
+    ops.cplex.barrier.convergetol = 1e-04;
+end
 n2 = size(P,1);
 b = zeros(n2, 1);
 for i = 1:n2
