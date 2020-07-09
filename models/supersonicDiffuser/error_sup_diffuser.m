@@ -3,10 +3,9 @@ path = fileparts(which('error_sup_diffuser.m'));
 [FOM, ROM, CTRL, Z, U, NOISE] = supersonicDiffuser();
 opts.discrete = true;
 
-opts.G_method = 'BatchGP';
+opts.G_method = 'Lyap';
 opts.Cr_method = 'hyperrect';
 opts.Cw_method = 'hyperrect';
-opts.D2_only = true;
 tau = 2000;
 opts.normbound_datapath = strcat(path, '/data/NORMBOUND.mat');
 opts.errormats_datapath = strcat(path, '/data/ERRORMATS.mat');

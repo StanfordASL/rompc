@@ -5,7 +5,7 @@ opts.discrete = true;
 
 % Compute controller
 opts.method = 'ric';
-opts.Wz = diag([1,0]);
+opts.Wz = [1];
 opts.Wu = [0.5];
 [CTRL.K, CTRL.L] = computeControllerGains(FOM, ROM, opts);
 save(strcat(path, '/data/CTRL.mat'), 'CTRL');
