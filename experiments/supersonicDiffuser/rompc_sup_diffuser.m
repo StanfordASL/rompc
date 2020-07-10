@@ -16,7 +16,7 @@ r = [0.05];
 X0.xf = xfss;
 X0.xhat = xhatss;
 X0.xbar = xbarss;
-T = 200;
+T = 80;
 
 % Simulate with noise
 opt.NOISE = NOISE;
