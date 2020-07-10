@@ -6,8 +6,9 @@ figpath = strcat(path,'/figures/');
 colors = {'b', [0.75, 0, 0.75], [0 0.6 0.3], 'r', 'k'};
 markers = {'o','x','v','s','d'};
 mark_idx = round(linspace(1,DATA_ROMPC.T-1,15));
-t_ROMPC = linspace(0, DATA_ROMPC.dt*DATA_ROMPC.T, DATA_ROMPC.T);
-t_LQR = linspace(0, DATA_LQR.dt*DATA_LQR.T, DATA_LQR.T);
+dt = 0.025;
+t_ROMPC = linspace(0, dt*DATA_ROMPC.T, DATA_ROMPC.T);
+t_LQR = linspace(0, dt*DATA_LQR.T, DATA_LQR.T);
 rho0 = 1.225; % nominal density
 
 % Compute cost differences
@@ -50,17 +51,6 @@ legend('boxoff');
 % export_fig(filename, '-png', '-m2')
 % export_fig(filename, '-pdf')
 
-
-%% Plot disturbance
-figure('color',[1,1,1],'Position', [1, 1, 900,600]); hold on;
-% title('Supersonic Diffuser','Interpreter','latex','Fontsize',22);
-plot(t_ROMPC, (100/rho0)*DATA_ROMPC.z(2,:),'color',colors{1},'marker',markers{1},'markerindices',mark_idx,'Linewidth',1);
-% ylim([]);
-xlabel('Time, [s]','Interpreter','latex','FontSize',22);
-ylabel('Flow Density Perturbation, $\Delta \rho$ [\%$\rho_0$]','Interpreter','latex','FontSize',22);
-% filename = strcat(figpath, 'wf_sup_diffuser');
-% export_fig(filename, '-png', '-m2')
-% export_fig(filename, '-pdf')
 
 
 
