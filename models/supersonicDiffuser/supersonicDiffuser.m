@@ -73,7 +73,7 @@ Z = rectanglePolytope(zUB, zLB);
 U = rectanglePolytope(uUB, uLB);
 
 % Create bounds on noise w, v
-wUB = [0.0001*1.225]; % equal to .01% sea level density
+wUB = [0.001*1.225]; % equal to .1% sea level density
 wLB = -wUB;
 vUB = [.0001];
 vLB = -vUB;
@@ -81,7 +81,7 @@ NOISE.W = rectanglePolytope(wUB, wLB);
 NOISE.V = rectanglePolytope(vUB, vLB);
 
 % Cost 
-FOM.Qf = speye(nf-1);
+FOM.Qf = speye(nf);
 FOM.Rf = 0.05*eye(m);
 if isfield(ROM, 'V')
     ROM.Q = ROM.V'*FOM.Qf*ROM.V; 
