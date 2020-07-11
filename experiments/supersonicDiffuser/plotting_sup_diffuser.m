@@ -52,5 +52,14 @@ legend('boxoff');
 % export_fig(filename, '-pdf')
 
 
-
+%% Performance Variable Error
+figure('color',[1,1,1],'Position', [1, 1, 900,600]); hold on;
+% title('Supersonic Diffuser','Interpreter','latex','Fontsize',22);
+plot(t_ROMPC, DATA_ROMPC.z(1,:)-DATA_ROMPC.zbar(1,:), 'color',colors{2},'marker',markers{1},'markerindices',mark_idx,'Linewidth',1);
+% ylim([]);
+xlabel('Time, [s]','Interpreter','latex','FontSize',22);
+ylabel('Tracking Error, $\delta (\Delta M_T)$','Interpreter','latex','FontSize',22);           
+% filename = strcat(figpath, 'dz_sup_diffuser');
+% export_fig(filename, '-png', '-m2')
+% export_fig(filename, '-pdf')
 
