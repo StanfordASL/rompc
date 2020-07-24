@@ -70,16 +70,20 @@ if strcmp(G_method, 'log-norm')
 elseif strcmp(G_method, 'Lyap')
     fprintf('Computing G, beta, alpha via Lyapunov method.\n');
     [~, lam] = eig(full(ERROR.Ae));
-    alpha = max(real(diag(lam))) + .01;
-    R = lyapchol((ERROR.Ae - alpha*eye(ne))', eye(ne)); % seems to perform better numerically than lyap
+    perturb = 0.1;
+    success = false;
+    while ~success
+        try
+            alpha = max(real(diag(lam))) + perturb;
+            R = lyapchol((ERROR.Ae - alpha*eye(ne))', eye(ne)); % seems to perform better numerically than lyap
+            success = true;
+        catch
+            perturb = perturb*2;
+        end
+    end
     G = R'*R;
     sqrtG = sqrtm(G);
     invsqrtG = inv(sqrtG);
-    [~, lam] = eig(sqrtG*ERROR.Ae*invsqrtG + invsqrtG*ERROR.Ae'*sqrtG);
-    if abs(alpha - max(real(diag(lam)))/2) > 0.1
-        fprintf('Lyap may have an issue, maybe try a different method.\n');
-        return;
-    end
     beta = 1;
 
 elseif strcmp(G_method, 'LMI')   

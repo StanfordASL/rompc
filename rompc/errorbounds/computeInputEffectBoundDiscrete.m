@@ -171,7 +171,6 @@ for i = 1:n_z
     if diagnostics.problem ~= 0
         disp('Solver failed.');
         disp(diagnostics.info)
-        Delta_z(i) = inf;
     end
 end
 
@@ -189,7 +188,6 @@ for i = 1:n_u
     if diagnostics.problem ~= 0
         disp('Solver failed.');
         disp(diagnostics.info)
-        Delta_u(i) = inf;
     end
 end
 

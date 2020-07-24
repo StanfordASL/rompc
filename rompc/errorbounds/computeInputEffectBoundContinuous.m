@@ -220,7 +220,7 @@ end
 ops = sdpsettings('verbose', 0, 'solver', opt.solver, 'savesolveroutput', 1);
 if strcmp(opt.solver, 'cplex')
     ops.cplex.lpmethod = 4;
-    ops.cplex.barrier.convergetol = 1e-04;
+    ops.cplex.barrier.convergetol = 1e-03;
 end
 n_z = size(Z.A,1);
 Delta_z = zeros(n_z, 1);
@@ -236,7 +236,6 @@ for i = 1:n_z
     if diagnostics.problem ~= 0
         disp('Solver failed.');
         disp(diagnostics.info)
-        Delta_z(i) = inf;
     end
 end
 
@@ -254,7 +253,6 @@ for i = 1:n_u
     if diagnostics.problem ~= 0
         disp('Solver failed.');
         disp(diagnostics.info)
-        Delta_u(i) = inf;
     end
 end
 

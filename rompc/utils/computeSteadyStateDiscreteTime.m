@@ -46,6 +46,7 @@ else
     xbarss = zeros(n,1);
     ubarss = uss;
     xhatss = xbarss;
+    return;
 end
 
 % Check if these values are within the tightened bounds
