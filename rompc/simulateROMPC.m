@@ -47,20 +47,14 @@ o = size(ROM.H, 1);
 % Continuous or discrete time
 if isfield(opt, 'continuous')
     continuous = opt.continuous;
-    if ~isfield(opt, 'sim_dt') || ~isfield(opt, 'rompc_dt')
-        error('Need to specify opt.sim_dt and opt.rompc_dt for continuous time problems');
+    if ~isfield(opt, 'sim_dt')
+        error('Need to specify opt.sim_dt for continuous time problems');
     end
     
     % Convert time to number of time steps
     t = 0:opt.sim_dt:T;
     T = length(t);
-    
-    % How many steps before recomputing ROMPC
-    update = opt.rompc_dt/opt.sim_dt;
-    if floor(update) ~= update
-        error('opt.rompc_dt should be integer multiple of opt.sim_dt');
-    end
-    
+        
     % Discretize ROM and estimator for easy simulation
     [Ad, Bd, ~] = zoh(opt.sim_dt, ROM.A, ROM.B, 0);
     [Ade, Bde, Bwe] = zoh(opt.sim_dt, ROM.A - CTRL.L*ROM.C, ROM.B, CTRL.L);
@@ -74,7 +68,6 @@ if isfield(opt, 'continuous')
     
 elseif isfield(opt, 'discrete')
     continuous = ~opt.discrete;
-    update = -1;
 else
     error('Need to specify if the problem is discrete or continuous time.');
 end
@@ -85,7 +78,7 @@ if isstruct(ROM_CTRL)
     if isfield(ROM_CTRL, 'ubar') && isfield(ROM_CTRL, 'xbar')
         ctrl_type = 'openloop';
         X0.xbar = ROM_CTRL.xbar(:,1);
-        if size(ROM_CTRL.ubar, 2) == T-1
+        if size(ROM_CTRL.ubar, 2) == size(ROM_CTRL.t, 2) - 1
             ROM_CTRL.ubar = [ROM_CTRL.ubar, ROM_CTRL.ubar(:,end)];
         end
         if ~isfield(ROM_CTRL, 't') && continuous
@@ -125,8 +118,20 @@ else
     opt.NOISE = struct();
 end
 
+update = -1;
 if strcmp(ctrl_type, 'rompc') || strcmp(ctrl_type, 'rompc_precompiled')
     [proj] = correctionProjection(ROM.H, Zbar, opt);
+
+    % How many steps before recomputing ROMPC in continuous time case
+    if continuous
+        if ~isfield(opt, 'rompc_dt')
+            error('Need to specify opt.rompc_dt for continuous time ROMPC problems');
+        end
+        update = opt.rompc_dt/opt.sim_dt;
+        if floor(update) ~= update
+            error('opt.rompc_dt should be integer multiple of opt.sim_dt');
+        end
+    end
 end
 
 % Containers for data
