@@ -42,6 +42,7 @@ plot(DATA_ROMPC.z(8,:),'color',colors{4},'marker',markers{4},'markerindices',mar
 plot(uUB*ones(1,DATA_ROMPC.T), 'color','k','Linewidth',1,'Linestyle','--');
 plot(uLB*ones(1,DATA_ROMPC.T), 'color','k','Linewidth',1,'Linestyle','--');
 ylim([-1.05, 1.05]);
+xlim([0, 50]);
 xlabel('Time, [min]','Interpreter','latex','FontSize',22);
 ylabel('Control Inputs, $u$ [kmol/min]','Interpreter','latex','FontSize',22);
 legend({'$L$', '$V$', '$D$', '$B$', 'constraints'}, 'Interpreter','latex',...
@@ -64,6 +65,7 @@ plot(DATA_ROMPC.u(4,:),'color',colors{4},'marker',markers{4},'markerindices',mar
 plot(uUB*ones(1,DATA_ROMPC.T), 'color','k','Linewidth',1,'Linestyle','--');
 plot(uLB*ones(1,DATA_ROMPC.T), 'color','k','Linewidth',1,'Linestyle','--');
 ylim([-0.21, 0.25]);
+xlim([0, 50]);
 xlabel('Time, [min]','Interpreter','latex','FontSize',22);
 ylabel('Control Rates, $\Delta u$ [kmol/min$^2$]','Interpreter','latex','FontSize',22);
 legend({'$\Delta L$', '$\Delta V$', '$\Delta D$', '$\Delta B$', 'constraints'}, 'Interpreter','latex',...

@@ -18,6 +18,7 @@ function [O_inf, kstar, lptime] = maximalPI(A, E, Phi, opt)
 fprintf('Computing maximal admissible PI set [Kolmanovsky and Gilbert (1998)].\n');
 
 N = size(Phi.A, 1);
+n = size(A, 1);
 lptime = 0;
 Ho_k = Phi.A*E;
 H_o = Ho_k;
@@ -34,14 +35,32 @@ kmax = 1000;
 for i = 1:kmax
     Ho_k = Ho_k*A;
     
+    % Compute what they would be at next iteration after adding Ho_k
+    H_o_cand = H_o;
+    b_o_cand = b_o;
+    for j = 1:N
+        nm = norm(Ho_k(j,:));
+        H_o_cand = [H_o_cand; Ho_k(j,:)./nm];
+        b_o_cand = [b_o_cand; Phi.b(j)/nm];
+    end
+    
     % Check termination conditions
     satisfied = ones(N,1);
     
-    % Define support function for current O_k
-    [prob] = supportFunction(size(H_o, 2), size(H_o, 1), opt);
-    hO = prob([], H_o, b_o);
+    % Define support functions
+    M = size(H_o, 1); % current number of constraints before adding any new
+    [prob] = supportFunction(n, M + N - 1, opt);
     max_change = 0;
     for j = 1:N
+        % Define support function by removing the jth constraint to check
+        % if the jth constraint is redundant
+        Hbar = H_o_cand;
+        bbar = b_o_cand;
+        Hbar(M + j, :) = [];
+        bbar(M + j, :) = [];
+        hO = prob([], Hbar, bbar);
+        
+        % Solve LP
         [~,~,~,~,~,solver] = hO(Ho_k(j,:)');
         lptime = lptime + solver.solvertime;
         if solver.problem == 0
@@ -53,9 +72,9 @@ for i = 1:kmax
 			return;
         end
         
-        % Check if adding constraint would change the set, if yes then add it
+        % Check if adding constraint would change the set, if so add it
         if h_j > Phi.b(j)
-            change = 100*abs(h_j - Phi.b(j))/h_j;
+            change = 100*abs(h_j - Phi.b(j))/Phi.b(j);
             if change > max_change
                 max_change = change;
             end
