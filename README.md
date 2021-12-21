@@ -24,7 +24,7 @@ The following examples are included in this repository:
 | tubularReactor       | A continuous-time model of a controlled chemical reaction process [3]                                                |    600    |
 | heatflow             | A time-discretized model for a distributed control heat flow problem, modified from the HF2D9 model described in [4] |   3,481   |
 | supersonicDiffuser   | A time-discretized CFD model for the active control of a supersonic diffuser [5],[6]                                 |  11,730   |
-| aircraft             | A continuous-time aircraft dynamics model (with an embedded CFD aerodynamics model) [7],[8]                          |  998,936  |
+| aircraft             | A continuous-time aircraft dynamics model (with an embedded CFD aerodynamics model) [12] (see also [7],[8] for more details)                          |  998,936  |
 
 ## Notes ##
 This repository also contains some open-source code that implements methods that are optionally used when computing the error bounds and controller gains. In particular, this repository contains:
@@ -53,6 +53,8 @@ This repository also contains some open-source code that implements methods that
 [10] D. Arzelier, G. Deaconu, S. Gumussoy and D. Henrion. "H2 for HIFOO", International Conference on Control and Optimization with Industrial Applications (2011)
 
 [11] S. Gumussoy, D. Henrion, M. Millstone and M.L. Overton. "Multiobjective Robust Control with HIFOO 2.0", Proceedings of the IFAC Symposium on Robust Control Design (2009)
+
+[12] J. Lorenzetti, A. McClellan, C. Farhat, and M. Pavone, “Linear Reduced Order Model Predictive Control,” IEEE Transactions on Automatic Control, 2021. (Submitted)
 
 <p align="center"><img width="50%" src="img/heatflow.png"/></p>
 
